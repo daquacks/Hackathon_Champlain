@@ -3,12 +3,13 @@ package org.example.hackathon;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node; // Import Node
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox; // Import VBox
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.paint.Color;
@@ -29,7 +30,6 @@ public class Launcher extends Application {
     private static final Duration FADE_DURATION = Duration.seconds(2.5);
     private static final Duration DISPLAY_DURATION = Duration.seconds(2.0);
     private static final Duration PAUSE_BETWEEN_LINES = Duration.seconds(1.0);
-    // Added a shorter pause for when the second line appears under the first
     private static final Duration SHORT_PAUSE = Duration.seconds(1.5);
 
     @Override
@@ -50,7 +50,6 @@ public class Launcher extends Application {
         SequentialTransition masterSequence = new SequentialTransition();
 
         // --- Part 1: Animate lines 0 and 1 normally ---
-        // Loop now only goes up to i < 2
         for (int i = 0; i < 2; i++) {
             Label label = createStyledLabel(INTRO_TEXT[i]);
             label.setOpacity(0);
@@ -71,27 +70,19 @@ public class Launcher extends Application {
         label2.setOpacity(0);
         label3.setOpacity(0);
 
-        // Use a VBox to stack them vertically
         VBox distressCallBox = new VBox(5); // 5px spacing
         distressCallBox.setAlignment(Pos.CENTER);
         distressCallBox.getChildren().addAll(label2, label3);
         root.getChildren().add(distressCallBox);
 
-        // Create a parallel transition to fade them out *together*
         ParallelTransition fadeOutBoth = new ParallelTransition(
                 createFadeOut(label2),
                 createFadeOut(label3)
         );
 
-        // Create a new sequence for this specific part:
-        // 1. Fade in line 2
-        // 2. Pause
-        // 3. Fade in line 3 (while line 2 is still visible)
-        // 4. Pause (while both are visible)
-        // 5. Fade out both
         SequentialTransition distressSequence = new SequentialTransition(
                 createFadeIn(label2),
-                new PauseTransition(SHORT_PAUSE), // Shorter pause before line 3 appears
+                new PauseTransition(SHORT_PAUSE),
                 createFadeIn(label3),
                 new PauseTransition(DISPLAY_DURATION),
                 fadeOutBoth
@@ -111,25 +102,36 @@ public class Launcher extends Application {
         choiceBox.getChildren().addAll(label4, label5);
         root.getChildren().add(choiceBox);
 
-        // Fade *in* both choice lines together
-        ParallelTransition fadeInChoice = new ParallelTransition(
-                createFadeIn(label4),
-                createFadeIn(label5)
+        // --- MODIFICATION HERE ---
+
+        // 1. Create the fade-out transitions
+        FadeTransition fadeOut4 = createFadeOut(label4);
+        FadeTransition fadeOut5 = createFadeOut(label5);
+
+        // 2. Create the shake animation for the VBox
+        Animation shakeAnimation = createShake(choiceBox);
+
+        // 3. Combine fades and shake into one parallel transition
+        ParallelTransition fadeOutAndShake = new ParallelTransition(
+                fadeOut4,
+                fadeOut5,
+                shakeAnimation
         );
 
-        // Fade *out* both choice lines together
-        ParallelTransition fadeOutChoice = new ParallelTransition(
-                createFadeOut(label4),
-                createFadeOut(label5)
-        );
-
-        // Sequence for the choice
+        // 4. Build the sequence using the new parallel transition
         SequentialTransition choiceSequence = new SequentialTransition(
-                fadeInChoice,
+                createFadeIn(label4),
+                new PauseTransition(SHORT_PAUSE), // Shorter pause before line 5 appears
+                createFadeIn(label5),
                 new PauseTransition(DISPLAY_DURATION),
-                fadeOutChoice
+                fadeOutAndShake // Use the new combined animation
         );
+
+        // --- END MODIFICATION ---
+
         masterSequence.getChildren().add(choiceSequence);
+        // Add a final pause before the "Press Any Key" screen
+        masterSequence.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
 
 
         // --- Part 4: OnFinished handler (unchanged) ---
@@ -148,7 +150,7 @@ public class Launcher extends Application {
             int[] r = {0};
             int[] g = {0};
             int[] b = {0};
-            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.001), e -> {
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.01), e -> {
                 Color color = Color.rgb(r[0], g[0], b[0], 1.0);
 
                 root.setBackground(new Background(
@@ -163,7 +165,6 @@ public class Launcher extends Application {
 
             timeline.setCycleCount(Timeline.INDEFINITE);
 
-            // Add an event listener to transition to the next scene on key press
             root.setOnKeyPressed(e -> {
                 System.out.println("Key pressed, starting game...");
                 timeline.play();
@@ -201,6 +202,36 @@ public class Launcher extends Application {
         fadeOut.setToValue(0.0);
         return fadeOut;
     }
+
+    // --- NEW HELPER METHOD ---
+    /**
+     * Creates a shake animation for a given Node.
+     * @param node The node to shake.
+     * @return An Animation (Timeline) that shakes the node.
+     */
+    private Animation createShake(Node node) {
+        Timeline timeline = new Timeline();
+        // The duration of one back-and-forth "shake" cycle
+        double cycleDuration = 75; // 75 milliseconds
+
+        timeline.getKeyFrames().addAll(
+                // At 0ms, text is centered
+                new KeyFrame(Duration.ZERO, new KeyValue(node.translateXProperty(), 0)),
+                // At 25% of cycle, move left
+                new KeyFrame(Duration.millis(cycleDuration * 0.25), new KeyValue(node.translateXProperty(), -8)),
+                // At 75% of cycle, move right
+                new KeyFrame(Duration.millis(cycleDuration * 0.75), new KeyValue(node.translateXProperty(), 8)),
+                // At 100% of cycle, return to center
+                new KeyFrame(Duration.millis(cycleDuration), new KeyValue(node.translateXProperty(), 0))
+        );
+
+        // Calculate how many times to shake during the fade duration
+        int shakeCycles = (int) (FADE_DURATION.toMillis() / cycleDuration);
+        timeline.setCycleCount(shakeCycles);
+
+        return timeline;
+    }
+
 
     public static void main(String[] args) {
         launch(args);
