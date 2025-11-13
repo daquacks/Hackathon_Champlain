@@ -92,6 +92,25 @@ public class Launcher extends Application {
                 finalFadeIn.setToValue(1.0);
                 finalFadeIn.play();
 
+                //For background
+                int [] r = {0};
+                int [] g = {0};
+                int [] b = {0};
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.01), e -> {
+                    Color color = Color.rgb(r[0], g[0], b[0], 1.0);
+
+                    root.setBackground(new Background(
+                            new BackgroundFill(color, null, null)));
+
+                    if (r[0] != 255) {
+                        r[0]++;
+                        g[0]++;
+                        b[0]++;
+                    }
+                }));
+
+                timeline.setCycleCount(Timeline.INDEFINITE);
+
                 // Add an event listener to transition to the next scene on key press
                 root.setOnKeyPressed(e -> {
                     System.out.println("Key pressed, starting game...");
