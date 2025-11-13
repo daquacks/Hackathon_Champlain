@@ -132,6 +132,7 @@ public class Launcher extends Application {
         });
 
         seq.play();
+
     }
 
     private void playIntroAnimation(StackPane root, Stage primaryStage) {
@@ -315,13 +316,27 @@ public class Launcher extends Application {
     // --- NEW HELPER METHOD ---
     // This contains the logic from your old setOnKeyPressed handler
     private void launchGame(Stage primaryStage) {
+        // Load dialogues from JSON before showing any dialogue
+        loadDialogues();
+        // Show the first dialogue sequence
+        showDialogue(root, "game_start", primaryStage);
         GameInterface mainUI = new GameInterface(primaryStage);
         Transitions.flashbang(primaryStage, mainUI.getRoot());
-        mainUI.addChatMessage("Incoming transmission detected...", true);
-
     }
 
-    // ... (createStyledLabel, createTypingAnimation, createFadeOut, createShake, main methods are unchanged) ...
+    private void loadDialogues() {
+        try {
+            java.net.URL dialogueUrl = getClass().getResource("dialogues.json");
+            if (dialogueUrl != null) {
+                String jsonContent = new String(dialogueUrl.openStream().readAllBytes());
+                dialogues = DialogueParser.parseDialogues(jsonContent);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load dialogues: " + e.getMessage());
+            dialogues = new java.util.HashMap<>();
+        }
+    }
+
 
     // Helper method for consistent styling
     private Label createStyledLabel(String text) {
