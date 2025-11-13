@@ -178,12 +178,35 @@ public class GameInterface {
             Button b = new Button(c.text);
 
             b.setStyle("""
-                    -fx-font-size: 15px;
-                    -fx-background-color: rgba(255,255,255,0.09);
-                    -fx-text-fill: white;
-                    -fx-padding: 12px 25px;
-                    -fx-background-radius: 8;
-                    """);
+            -fx-font-size: 28px;
+            -fx-font-weight: bold;
+            -fx-background-color: rgba(255,255,255,0.15);
+            -fx-text-fill: white;
+            -fx-padding: 14px 30px;
+            -fx-background-radius: 12;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 4, 0.5, 0, 2);
+            """);
+
+            // Hover effect to make it even clearer
+            b.setOnMouseEntered(e -> b.setStyle("""
+            -fx-font-size: 28px;
+            -fx-font-weight: bold;
+            -fx-background-color: rgba(255,255,255,0.35);
+            -fx-text-fill: white;
+            -fx-padding: 14px 30px;
+            -fx-background-radius: 12;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 6, 0.5, 0, 2);
+            """));
+
+            b.setOnMouseExited(e -> b.setStyle("""
+            -fx-font-size: 28px;
+            -fx-font-weight: bold;
+            -fx-background-color: rgba(255,255,255,0.15);
+            -fx-text-fill: white;
+            -fx-padding: 14px 30px;
+            -fx-background-radius: 12;
+            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 4, 0.5, 0, 2);
+            """));
 
             b.setOnAction(e -> callback.accept(c));
             choicesBox.getChildren().add(b);
