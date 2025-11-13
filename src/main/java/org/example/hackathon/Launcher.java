@@ -12,6 +12,7 @@ import javafx.scene.canvas.Canvas; // --- ADDED ---
 import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -23,6 +24,7 @@ import javafx.util.Duration;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 
+import java.util.Map;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
