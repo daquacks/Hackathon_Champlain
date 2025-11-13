@@ -118,7 +118,7 @@ public class Launcher extends Application {
                 int [] r = {0};
                 int [] g = {0};
                 int [] b = {0};
-                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.01), e -> {
+                Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.001), e -> {
                     Color color = Color.rgb(r[0], g[0], b[0], 1.0);
 
                     root.setBackground(new Background(
