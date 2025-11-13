@@ -33,10 +33,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-public class MenuClass extends Application {
+public class MenuClass{
 
-    @Override
-    public void start(Stage stage) {
+
+    public static void start(Stage stage) {
         // === Background with stars ===
         Canvas canvas = new Canvas();
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -85,35 +85,18 @@ public class MenuClass extends Application {
     -fx-padding: 2px;
 """);
 
-        try {
-            // Get the resource URL from the classpath
-            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
-            if (musicUrl == null) {
-                System.out.println("⚠️ Music file not found in resources!");
-            } else {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
-                clip.start();
-
                 // Connect volume slider
-                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                FloatControl volumeControl = (FloatControl) Launcher.getClip().getControl(FloatControl.Type.MASTER_GAIN);
                 volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
                     float min = volumeControl.getMinimum();
                     float max = volumeControl.getMaximum();
                     float value = min + (max - min) * newVal.floatValue();
                     volumeControl.setValue(value);
                 });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
         HBox sliderBox = new HBox(volumeSlider);
         sliderBox.setAlignment(Pos.CENTER);
         sliderBox.setPrefWidth(200);
-
-
 
         // === Layout ===
         VBox vbox = new VBox(20, title, startButton,blank, volumeLabel, sliderBox);
@@ -134,7 +117,7 @@ public class MenuClass extends Application {
         stage.show();
     }
 
-    private void drawStars(GraphicsContext gc, int count) {
+    private static void drawStars(GraphicsContext gc, int count) {
         Random rand = new Random();
 
         double width = gc.getCanvas().getWidth();
@@ -150,10 +133,6 @@ public class MenuClass extends Application {
             double radius = rand.nextDouble() * 2;
             gc.fillOval(x, y, radius, radius);
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
 

@@ -24,9 +24,16 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
+    private java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
+    private static AudioInputStream audioInput;
+    private static Clip clip;
+
 
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
@@ -44,8 +51,36 @@ public class Launcher extends Application {
     private static final Duration SHORT_PAUSE = Duration.seconds(1.5);
     private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(30);
 
+    public java.net.URL getMusicUrl() {
+        return musicUrl;
+    }
+
+    public static AudioInputStream getAudioInput() {
+        return audioInput;
+    }
+
+    public static Clip getClip() {
+        return clip;
+    }
+
     @Override
     public void start(Stage primaryStage) {
+        try {
+            // Get the resource URL from the classpath
+            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
+            if (musicUrl == null) {
+                System.out.println("⚠️ Music file not found in resources!");
+            } else {
+                audioInput = AudioSystem.getAudioInputStream(musicUrl);
+                clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
+                clip.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: black;");
         root.setAlignment(Pos.CENTER);
@@ -192,6 +227,7 @@ public class Launcher extends Application {
         // --- This is the how to access the configurations menu
         configurations.setOnAction(e -> {
             ; // Call helper to launch main game
+            MenuClass.start(primaryStage);
         });
 
         VBox vbox = new VBox(20, title, startButton, configurations);
