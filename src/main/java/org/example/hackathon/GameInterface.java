@@ -147,7 +147,7 @@ public class GameInterface {
     public void showChoices(java.util.List<Choice> choices, java.util.function.Consumer<Choice> callback) {
 
         choicesBox.getChildren().clear();
-        choicesBox.setAlignment(Pos.CENTER);
+        choicesBox.setAlignment(Pos.BOTTOM_RIGHT);
         choicesBox.setSpacing(15);
 
         for (Choice c : choices) {
@@ -155,7 +155,7 @@ public class GameInterface {
             Button b = new Button(c.text);
 
             b.setStyle("""
-                    -fx-font-size: 20px;
+                    -fx-font-size: 15px;
                     -fx-background-color: rgba(255,255,255,0.09);
                     -fx-text-fill: white;
                     -fx-padding: 12px 25px;
