@@ -17,9 +17,20 @@ import javafx.scene.layout.VBox;
 //import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class MenuClass extends Application {
@@ -43,11 +54,13 @@ public class MenuClass extends Application {
         // === Title Label ===
         Label title = new Label("Menu");
         title.setTextFill(Color.WHITE);
-        title.setStyle("-fx-font-size: 123px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 63px; -fx-font-weight: bold;");
 
         // === Buttons ===
         Button startButton = new Button("Start Game");
-        startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px;");
+        startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 12px;");
+
+        Label blank = new Label("");
 
         Label volumeLabel = new Label("Volume");
         volumeLabel.setTextFill(Color.WHITE);
@@ -56,7 +69,7 @@ public class MenuClass extends Application {
     -fx-text-fill: white;
     
     
-    -fx-font-size: 22px;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-padding: 5px 20px;
     -fx-alignment: center;
@@ -72,30 +85,40 @@ public class MenuClass extends Application {
     -fx-padding: 2px;
 """);
 
+        String musicPath = "/Users/nicolasbeauchemin/Documents/Hackathon_Champlain/src/main/resources/music/spaceMusic"; // full path to WAV
+
+        try {
+            File musicFile = new File(musicPath);
+            if (musicFile.exists()) {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicFile);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
+                clip.start();
+
+                // Connect volume slider
+                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    float min = volumeControl.getMinimum(); // usually -80
+                    float max = volumeControl.getMaximum(); // usually 6
+                    float value = min + (max - min) * newVal.floatValue();
+                    volumeControl.setValue(value);
+                });
+
+            } else {
+                System.out.println("Music file not found: " + musicPath);
+            }
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
         HBox sliderBox = new HBox(volumeSlider);
         sliderBox.setAlignment(Pos.CENTER);
         sliderBox.setPrefWidth(200);
 
-        // === Music (optional) ===
-        String musicPath = "src/main/resources/music.mp3"; // Replace with your file
-//        MediaPlayer mediaPlayer = null;
-//        try {
-//            Media music = new Media(new File(musicPath).toURI().toString());
-//            mediaPlayer = new MediaPlayer(music);
-//            mediaPlayer.setVolume(0.5);
-//            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-//            mediaPlayer.play();
-//
-//            MediaPlayer finalMediaPlayer = mediaPlayer;
-//            volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-//                finalMediaPlayer.setVolume(newVal.doubleValue());
-//            });
-//        } catch (Exception e) {
-//            System.out.println("⚠️ Music file not found or could not be played.");
-//        }
+
 
         // === Layout ===
-        VBox vbox = new VBox(20, title, startButton, volumeLabel, sliderBox);
+        VBox vbox = new VBox(20, title, startButton,blank, volumeLabel, sliderBox);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane root = new StackPane(canvas, vbox);
