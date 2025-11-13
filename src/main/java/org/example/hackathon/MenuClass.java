@@ -35,6 +35,10 @@ import java.util.Random;
 
 public class MenuClass extends Application {
 
+    private Clip currentClip;
+    private FloatControl currentVolumeControl;
+
+
     @Override
     public void start(Stage stage) {
         // === Background with stars ===
@@ -47,7 +51,7 @@ public class MenuClass extends Application {
         drawStars(gc, 2020);
 
 
-        canvas.widthProperty().addListener(e-> drawStars(gc, 2000));
+        canvas.widthProperty().addListener(e -> drawStars(gc, 2000));
         canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 1000));
 
 
@@ -65,58 +69,55 @@ public class MenuClass extends Application {
         Label volumeLabel = new Label("Volume");
         volumeLabel.setTextFill(Color.WHITE);
         volumeLabel.setStyle("""
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    
-    
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-padding: 5px 20px;
-    -fx-alignment: center;
-""");
+                    -fx-background-color: transparent;
+                    -fx-text-fill: white;
+                
+                
+                    -fx-font-size: 12px;
+                    -fx-font-weight: bold;
+                    -fx-padding: 5px 20px;
+                    -fx-alignment: center;
+                """);
 
 
         Slider volumeSlider = new Slider(0, 1, 0.5);
         volumeSlider.setPrefWidth(250); // shorter width
         volumeSlider.setStyle("""
-    -fx-control-inner-background: black;
-    -fx-accent: white;
-    -fx-pref-height: 6px;
-    -fx-padding: 2px;
-""");
+                    -fx-control-inner-background: black;
+                    -fx-accent: white;
+                    -fx-pref-height: 6px;
+                    -fx-padding: 2px;
+                """);
 
-        try {
-            // Get the resource URL from the classpath
-            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
-            if (musicUrl == null) {
-                System.out.println("⚠️ Music file not found in resources!");
-            } else {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
-                clip.start();
+        // Play initial music
+        playClip("/music/spaceMusic.wav", volumeSlider);
 
-                // Connect volume slider
-                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                    float min = volumeControl.getMinimum();
-                    float max = volumeControl.getMaximum();
-                    float value = min + (max - min) * newVal.floatValue();
-                    volumeControl.setValue(value);
-                });
+        startButton.setOnAction(e -> {
+            // Stop previous music
+            if (currentClip != null && currentClip.isRunning()) {
+                currentClip.stop();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            // Play new music
+            playClip("/music/suspenseMusic.wav", volumeSlider);
+        });
+
+        // Volume listener updates the currently active clip
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (currentVolumeControl != null) {
+                float min = currentVolumeControl.getMinimum();
+                float max = currentVolumeControl.getMaximum();
+                float value = min + (max - min) * newVal.floatValue();
+                currentVolumeControl.setValue(value);
+            }
+        });
+
         HBox sliderBox = new HBox(volumeSlider);
         sliderBox.setAlignment(Pos.CENTER);
         sliderBox.setPrefWidth(200);
 
 
-
         // === Layout ===
-        VBox vbox = new VBox(20, title, startButton,blank, volumeLabel, sliderBox);
+        VBox vbox = new VBox(20, title, startButton, blank, volumeLabel, sliderBox);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane root = new StackPane(canvas, vbox);
@@ -134,26 +135,57 @@ public class MenuClass extends Application {
         stage.show();
     }
 
-    private void drawStars(GraphicsContext gc, int count) {
-        Random rand = new Random();
+    private void playClip(String resourcePath, Slider volumeSlider) {
+        try {
+            java.net.URL musicUrl = getClass().getResource(resourcePath);
+            if (musicUrl == null) {
+                System.out.println("⚠️ Music file not found: " + resourcePath);
+                return;
+            }
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInput);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            clip.start();
 
-        double width = gc.getCanvas().getWidth();
-        double height = gc.getCanvas().getHeight();
+            // Set the current clip and volume control
+            currentClip = clip;
+            currentVolumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, width, height);
+            // Apply initial slider volume
+            float min = currentVolumeControl.getMinimum();
+            float max = currentVolumeControl.getMaximum();
+            float value = min + (max - min) * (float) volumeSlider.getValue();
+            currentVolumeControl.setValue(value);
 
-        gc.setFill(Color.WHITE);
-        for (int i = 0; i < count; i++) {
-            double x = rand.nextDouble() * width;
-            double y = rand.nextDouble() * height;
-            double radius = rand.nextDouble() * 2;
-            gc.fillOval(x, y, radius, radius);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    public static void main(String[] args) {
-        launch(args);
+        private void drawStars (GraphicsContext gc,int count){
+            Random rand = new Random();
+
+            double width = gc.getCanvas().getWidth();
+            double height = gc.getCanvas().getHeight();
+
+            gc.setFill(Color.BLACK);
+            gc.fillRect(0, 0, width, height);
+
+            gc.setFill(Color.WHITE);
+            for (int i = 0; i < count; i++) {
+                double x = rand.nextDouble() * width;
+                double y = rand.nextDouble() * height;
+                double radius = rand.nextDouble() * 2;
+                gc.fillOval(x, y, radius, radius);
+            }
+        }
+
+        public static void main (String[]args){
+            launch(args);
+        }
+
+
     }
-}
+
 
