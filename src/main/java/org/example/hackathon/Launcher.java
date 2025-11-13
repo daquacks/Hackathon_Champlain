@@ -55,7 +55,7 @@ public class Launcher extends Application {
     private static final Duration DISPLAY_DURATION = Duration.seconds(2.0);
     private static final Duration PAUSE_BETWEEN_LINES = Duration.seconds(1.0);
     private static final Duration SHORT_PAUSE = Duration.seconds(1.5);
-    private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(30);
+    private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(70);
 
     private Map<String, Dialogue> dialogues;
     private StackPane root = new StackPane();
