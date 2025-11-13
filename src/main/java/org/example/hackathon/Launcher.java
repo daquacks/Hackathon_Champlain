@@ -310,10 +310,7 @@ public class Launcher extends Application {
                 new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
                 new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
                 new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
-                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140)),
-                new KeyFrame(Duration.seconds(15), ev -> mainUI.addChatMessage("Control Center: Go fuck yourself, Hale.", false)),
-                new KeyFrame(Duration.seconds(18), ev -> mainUI.addChatMessage("Commander Hale: :(", true)),
-                new KeyFrame(Duration.seconds(21), ev -> mainUI.addChatMessage("Alien: hahaha that was actually funny man", true))
+                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140))
         );
         chatTimeline.play();
     }
@@ -326,7 +323,7 @@ public class Launcher extends Application {
         Font retroFont = null;
         try {
             // NOTE: Make sure your font file is named this or fix the path!
-            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 36);
+            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 60);
         } catch (Exception e) {
             System.err.println("Could not load font! Using default. Error: " + e.getMessage());
         }
