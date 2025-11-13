@@ -13,7 +13,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
