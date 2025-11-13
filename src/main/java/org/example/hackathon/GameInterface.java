@@ -128,6 +128,7 @@ public class GameInterface {
 
         startOxygenDrain(0.001); // decrease 1% per second
 
+        startFoodDrain(0.73);
     }
 
     public void startOxygenDrain(double drainPerSecond) {
@@ -142,6 +143,14 @@ public class GameInterface {
         );
         oxygenTimeline.setCycleCount(Timeline.INDEFINITE);
         oxygenTimeline.play();
+    }
+
+    public void startFoodDrain(double drainPerSecond) {
+        ProgressBar foodBar = resourceBars.get("Food");
+        if (foodBar == null) return;
+
+        foodBar.setProgress(0.76);
+
     }
 
 
@@ -191,7 +200,7 @@ public class GameInterface {
             Button b = new Button(c.text);
 
             b.setStyle("""
-            -fx-font-size: 28px;
+            -fx-font-size: 22px;
             -fx-font-weight: bold;
             -fx-background-color: rgba(255,255,255,0.15);
             -fx-text-fill: white;
@@ -202,7 +211,7 @@ public class GameInterface {
 
             // Hover effect to make it even clearer
             b.setOnMouseEntered(e -> b.setStyle("""
-            -fx-font-size: 28px;
+            -fx-font-size: 22px;
             -fx-font-weight: bold;
             -fx-background-color: rgba(255,255,255,0.35);
             -fx-text-fill: white;
@@ -212,7 +221,7 @@ public class GameInterface {
             """));
 
             b.setOnMouseExited(e -> b.setStyle("""
-            -fx-font-size: 28px;
+            -fx-font-size: 22px;
             -fx-font-weight: bold;
             -fx-background-color: rgba(255,255,255,0.15);
             -fx-text-fill: white;
