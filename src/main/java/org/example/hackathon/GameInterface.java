@@ -1,7 +1,6 @@
 package org.example.hackathon;
 
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.stage.Stage;
 import javafx.geometry.*;
 import javafx.scene.Scene;
@@ -14,12 +13,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class GameInterface{
@@ -31,14 +25,8 @@ public class GameInterface{
     private VBox resourcePanel;
     private ScrollPane chatScroll;
     private VBox chatBox;
-    private FlowPane choicePane;
     private Map<String, ProgressBar> resourceBars;
     private Map<String, Label> resourceLabels;
-
-    @FunctionalInterface
-    public interface ChoiceSelectedCallback {
-        void onChoiceSelected(Choice choice);
-    }
 
 
     // --- Constructor ---
@@ -47,10 +35,11 @@ public class GameInterface{
         root.setPrefSize(1280, 720); // Matched size to launcher
 
         setupLeftPanel();
-        setupChatPanel(); // This will now set the center of the root pane
+        setupChatPanel();
 
         // Assemble layout
         root.setLeft(leftPanel);
+        root.setCenter(chatScroll);
 
         Scene scene = new Scene(root);
         // Make sure game.css is in src/main/resources/styles/
@@ -135,44 +124,14 @@ public class GameInterface{
     }
 
     private void setupChatPanel() {
-        // --- 1. Chat History Display ---
         chatBox = new VBox(10);
         chatBox.setPadding(new Insets(10));
         chatBox.setFillWidth(true);
+        chatBox.setStyle("-fx-background-color: #0d0d0d;");
 
         chatScroll = new ScrollPane(chatBox);
         chatScroll.setFitToWidth(true);
         chatScroll.setStyle("-fx-background: #0d0d0d; -fx-border-color: #333;");
-        VBox.setVgrow(chatScroll, Priority.ALWAYS); // Make chat history expand
-
-        // --- 2. Predetermined Response Buttons ---
-        choicePane = new FlowPane(Orientation.HORIZONTAL, 10, 10);
-        choicePane.setPadding(new Insets(10, 0, 0, 0)); // Top padding
-
-        // --- 3. Main Chat Panel Container ---
-        VBox chatPanel = new VBox(10, chatScroll, choicePane);
-        chatPanel.setPadding(new Insets(10));
-        chatPanel.setStyle("-fx-background-color: #1a1a1a;"); // Dark background for the whole panel
-
-        // Set the new chat panel as the center of the main layout
-        root.setCenter(chatPanel);
-    }
-
-    public void setChoices(List<Choice> choices, ChoiceSelectedCallback callback) {
-        choicePane.getChildren().clear();
-        if (choices == null || choices.isEmpty()) {
-            return;
-        }
-
-        for (Choice choice : choices) {
-            Button responseButton = new Button(choice.text);
-            responseButton.getStyleClass().add("response-button");
-            responseButton.setOnAction(e -> {
-                addChatMessage("Control: " + choice.text, false);
-                callback.onChoiceSelected(choice);
-            });
-            choicePane.getChildren().add(responseButton);
-        }
     }
 
     public void addChatMessage(String message, boolean fromAstronaut) {
@@ -192,25 +151,6 @@ public class GameInterface{
 
         chatBox.getChildren().add(wrapper);
         chatScroll.setVvalue(1.0);
-
-        //Sound
-        try{
-            java.net.URL musicURL = getClass().getResource("/music/notification.wav");
-            if (musicURL == null) {
-                System.out.println("⚠️ Music file not found in resources!");
-            } else {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicURL);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.start();
-
-                FloatControl gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
-                gainControl.setValue(Launcher.audioValue);
-            }
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void updateResource(String name, double value) {

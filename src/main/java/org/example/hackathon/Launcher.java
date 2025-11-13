@@ -2,9 +2,11 @@ package org.example.hackathon;
 import java.util.Map;
 import javafx.animation.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -13,11 +15,11 @@ import javafx.scene.canvas.Canvas; // --- ADDED ---
 import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -35,9 +37,6 @@ import java.util.Map;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
-
-    //Sound value
-    public static float audioValue;
 
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
@@ -57,6 +56,9 @@ public class Launcher extends Application {
 
     private Map<String, Dialogue> dialogues;
     private StackPane root = new StackPane();
+    private SequentialTransition activeSequence = null;
+    private Timeline activeTypingTimeline = null;
+    private EventHandler<KeyEvent> dialogueKeyHandler = null;
 
     @Override
     public void start(Stage primaryStage) {
@@ -66,76 +68,14 @@ public class Launcher extends Application {
 
         // --- Use 1280x720 for a more standard game resolution ---
         Scene scene = new Scene(root, 1280, 720);
-        primaryStage.setTitle("Red Signal: A Message from Mars");
+        primaryStage.setTitle("Mars 2035: The Distress Call");
         primaryStage.setScene(scene);
         primaryStage.show();
 
         playIntroAnimation(root, primaryStage);
     }
 
-    private void showDialogue(StackPane root, String id, Stage primaryStage) {
-        Dialogue d = dialogues == null ? null : dialogues.get(id);
-        if (d == null) return;
 
-        // overlay container so background/menu remains visible
-        VBox container = new VBox(12);
-        container.setMaxWidth(900);
-        container.setStyle("-fx-padding: 20; -fx-background-color: rgba(0,0,0,0.7); -fx-background-radius: 8;");
-        container.setAlignment(Pos.CENTER);
-        root.getChildren().add(container);
-
-        SequentialTransition seq = new SequentialTransition();
-
-        if (d.lines != null && !d.lines.isEmpty()) {
-            for (String line : d.lines) {
-                Label lbl = createStyledLabel("");
-                lbl.setWrapText(true);
-                lbl.setMaxWidth(800);
-                container.getChildren().add(lbl);
-
-                // typing animation followed by a small pause
-                seq.getChildren().add(createTypingAnimation(lbl, line));
-                seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
-            }
-        } else {
-            // no lines -> small pause before choices or auto-advance
-            seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
-        }
-
-        seq.setOnFinished(e -> {
-            // if no choices: remove UI and continue (launch game or return)
-            if (d.choices == null || d.choices.isEmpty()) {
-                root.getChildren().remove(container);
-                launchGame(primaryStage);
-                return;
-            }
-
-            // build choices row, limit to 4 buttons for layout sanity
-            HBox choicesBox = new HBox(12);
-            choicesBox.setAlignment(Pos.CENTER);
-            int shown = 0;
-            for (Choice c : d.choices) {
-                if (shown++ >= 4) break;
-                Button b = new Button(c.text);
-                b.setStyle("-fx-font-size: 18px; -fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;");
-                b.setOnAction(evt -> {
-                    // remove this dialogue UI then navigate
-                    root.getChildren().remove(container);
-                    if (c.nextId == null || c.nextId.isBlank()) {
-                        launchGame(primaryStage);
-                    } else {
-                        showDialogue(root, c.nextId, primaryStage);
-                    }
-                });
-                choicesBox.getChildren().add(b);
-            }
-            container.getChildren().add(choicesBox);
-            container.requestFocus();
-        });
-
-        seq.play();
-
-    }
 
     private void playIntroAnimation(StackPane root, Stage primaryStage) {
         // ... (All of Part 1, 2, 3 remains unchanged) ...
@@ -297,10 +237,6 @@ public class Launcher extends Application {
                     float min = volumeControl.getMinimum();
                     float max = volumeControl.getMaximum();
                     float value = min + (max - min) * newVal.floatValue();
-
-                    //Save volume value for future audio
-                    audioValue = value;
-
                     volumeControl.setValue(value);
                 });
             }
@@ -319,16 +255,17 @@ public class Launcher extends Application {
         Transitions.flashbang(primaryStage, menuRoot);
     }
 
-    // --- NEW HELPER METHOD ---
-    // This contains the logic from your old setOnKeyPressed handler
     private void launchGame(Stage primaryStage) {
-        // Load dialogues from JSON before showing any dialogue
-        loadDialogues();
-        // Show the first dialogue sequence
-        showDialogue(root, "game_start", primaryStage);
+        // Create main Game UI
         GameInterface mainUI = new GameInterface(primaryStage);
+
+        // Transition to the GameInterface root
         Transitions.flashbang(primaryStage, mainUI.getRoot());
+        mainUI.addChatMessage("Bonjour test", true);
+
+
     }
+
 
     private void loadDialogues() {
         try {
