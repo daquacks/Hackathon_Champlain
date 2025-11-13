@@ -1,5 +1,5 @@
 package org.example.hackathon;
-
+import java.util.Map;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -26,7 +26,10 @@ import javafx.util.Duration;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 
-import java.util.Map;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
@@ -229,7 +232,58 @@ public class Launcher extends Application {
             launchGame(primaryStage); // Call helper to launch main game
         });
 
-        VBox vbox = new VBox(20, title, startButton);
+        Label volumeLabel = new Label("Volume");
+        volumeLabel.setTextFill(Color.WHITE);
+        volumeLabel.setStyle("""
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    
+    
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 20px;
+    -fx-alignment: center;
+""");
+
+
+        Slider volumeSlider = new Slider(0, 1, 0.5);
+        volumeSlider.setPrefWidth(250); // shorter width
+        volumeSlider.setStyle("""
+    -fx-control-inner-background: black;
+    -fx-accent: white;
+    -fx-pref-height: 6px;
+    -fx-padding: 2px;
+""");
+
+        try {
+            // Get the resource URL from the classpath
+            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
+            if (musicUrl == null) {
+                System.out.println("⚠️ Music file not found in resources!");
+            } else {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
+                clip.start();
+
+                // Connect volume slider
+                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    float min = volumeControl.getMinimum();
+                    float max = volumeControl.getMaximum();
+                    float value = min + (max - min) * newVal.floatValue();
+                    volumeControl.setValue(value);
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HBox sliderBox = new HBox(volumeSlider);
+        sliderBox.setAlignment(Pos.CENTER);
+        sliderBox.setPrefWidth(200);
+
+        VBox vbox = new VBox(20, title, startButton, volumeLabel, sliderBox);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane menuRoot = new StackPane(canvas, vbox);
