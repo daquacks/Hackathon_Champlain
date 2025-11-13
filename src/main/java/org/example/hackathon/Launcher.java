@@ -345,7 +345,7 @@ public class Launcher extends Application {
         Font retroFont = null;
         try {
             // NOTE: Make sure your font file is named this or fix the path!
-            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 36);
+            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 60);
         } catch (Exception e) {
             System.err.println("Could not load font! Using default. Error: " + e.getMessage());
         }
