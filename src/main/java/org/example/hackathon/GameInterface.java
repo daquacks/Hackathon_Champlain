@@ -49,12 +49,22 @@ public class GameInterface {
         // LEFT = map + resources
         root.setLeft(leftPanel);
 
-        // CENTER = chat
-        root.setCenter(chatScroll);
+        // --- NEW LAYOUT FOR RIGHT SIDE ---
+        VBox rightSide = new VBox();
+        rightSide.setSpacing(10);
 
-        // CHOICES overlay
-        StackPane centerWrapper = new StackPane(chatScroll, choicesBox);
-        root.setCenter(centerWrapper);
+// chatScroll grows
+        VBox.setVgrow(chatScroll, Priority.ALWAYS);
+
+// style optional
+        rightSide.setPadding(new Insets(15));
+
+// add chat (top) and choices (bottom)
+        rightSide.getChildren().addAll(chatScroll, choicesBox);
+
+// put VBox into center of BorderPane
+        root.setCenter(rightSide);
+
     }
 
     // -------------------------------------------------------------
