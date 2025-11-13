@@ -85,7 +85,7 @@ public class MenuClass extends Application {
     -fx-padding: 2px;
 """);
 
-        String musicPath = "/Users/nicolasbeauchemin/Documents/Hackathon_Champlain/src/main/resources/music/spaceMusic"; // full path to WAV
+        String musicPath = "/Users/nicolasbeauchemin/Documents/Hackathon_Champlain/src/main/resources/music/spaceMusic.wav"; // full path to WAV
 
         try {
             File musicFile = new File(musicPath);
