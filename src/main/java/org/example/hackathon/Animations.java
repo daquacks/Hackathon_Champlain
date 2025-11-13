@@ -1,6 +1,7 @@
 package org.example.hackathon;
 
 import javafx.animation.FadeTransition;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -10,7 +11,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class Animations {
-    public static void flashbang(Stage primaryStage, Pane menuRoot) {
+    public static void flashbang(Stage primaryStage, Node menuRoot) {
         // === 2. Build the Flash-Bang Transition ===
 
         // Create the white flash pane, matching the scene size

@@ -206,6 +206,7 @@ public class Launcher extends Application {
     // This contains the logic from your old setOnKeyPressed handler
     private void launchGame(Stage primaryStage) {
         GameInterface mainUI = new GameInterface(primaryStage);
+        Animations.flashbang(primaryStage, mainUI.getRoot());
         mainUI.addChatMessage("Incoming transmission detected...", true);
         mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
         mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
