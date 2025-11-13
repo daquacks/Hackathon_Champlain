@@ -20,7 +20,7 @@ public class Launcher extends Application {
                 "In 2030, humans managed to reach Mars.",
                 "The current year is 2035, and you are working as a radio communicator.",
                 "Suddenly, you receive a distress call,",
-                "and you must help a human reach the base on Mars safely without dying.",
+                "And you must help a human reach the base on Mars safely without dying.",
                 "Will you get your head in the game and fight for the life of a stranger?",
                 "Or will you be a coward and let him die?"
         };
@@ -47,7 +47,7 @@ public class Launcher extends Application {
         private void playIntroAnimation(StackPane root) {
             SequentialTransition masterSequence = new SequentialTransition();
 
-            for (int i = 0; i < INTRO_TEXT.length; i++) {
+            for (int i = 0; i < 3; i++) {
                 String lineText = INTRO_TEXT[i];
                 Label label = createStyledLabel(lineText);
                 label.setOpacity(0); // Start invisible
