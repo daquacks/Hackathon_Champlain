@@ -40,7 +40,7 @@ public class Launcher extends Application {
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
             "Five years ago, in 2030, humanity's dream of touching Mars became reality.",
-            "Now, in 2035, you are the sole lifeline... the only voice connecting the Ares-7 colony back to Earth.",
+            "Now, in 2035, you are a radio communicator, establishing contact with those on Mars. The existence of aliens has been suspected for years now.",
             "The long silence is shattered by a single, desperate transmission.",
             "\"...static... reactor failure... life support critical... can anyone hear me...?\"",
             "The signal dies. Their fate is now in your hands.",
@@ -196,7 +196,7 @@ public class Launcher extends Application {
 
         // --- Skip Intro Logic ---
         Label skipLabel = new Label("Press Enter to skip");
-        skipLabel.setFont(Font.font("Arial", 14));
+        skipLabel.setFont(Font.font("Arial", FontWeight.BOLD, 25));
         skipLabel.setTextFill(Color.GRAY);
         skipLabel.setPadding(new Insets(10));
         StackPane.setAlignment(skipLabel, Pos.BOTTOM_RIGHT);
@@ -332,10 +332,7 @@ public class Launcher extends Application {
                 new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
                 new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
                 new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
-                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140)),
-                new KeyFrame(Duration.seconds(15), ev -> mainUI.addChatMessage("Control Center: Go fuck yourself, Hale.", false)),
-                new KeyFrame(Duration.seconds(18), ev -> mainUI.addChatMessage("Commander Hale: :(", true)),
-                new KeyFrame(Duration.seconds(21), ev -> mainUI.addChatMessage("Alien: hahaha that was actually funny man", true))
+                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140))
         );
         chatTimeline.play();
     }
@@ -355,7 +352,7 @@ public class Launcher extends Application {
         if (retroFont != null) {
             label.setFont(retroFont);
         } else {
-            label.setFont(Font.font("Arial", FontWeight.BOLD, 36)); // Fallback
+            label.setFont(Font.font("Arial", FontWeight.BOLD, 60));
         }
         label.setTextFill(Color.color(0.0588235,0.58823529,0.0588235));
         label.setWrapText(true);
