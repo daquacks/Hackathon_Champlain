@@ -318,7 +318,7 @@ public class Launcher extends Application {
         } else {
             label.setFont(Font.font("Arial", FontWeight.BOLD, 36)); // Fallback
         }
-        label.setTextFill(Color.color(0.0588235,0.2666666,0.0588235));
+        label.setTextFill(Color.color(0.0588235,0.58823529,0.0588235));
         label.setWrapText(true);
         label.setMaxWidth(800);
         label.setTextAlignment(TextAlignment.CENTER);
