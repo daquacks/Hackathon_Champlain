@@ -16,7 +16,7 @@ import javafx.scene.text.Text;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GameInterface {
+public class GameInterface{
 
     // ... (UI Components and maps are unchanged) ...
     private BorderPane root;
