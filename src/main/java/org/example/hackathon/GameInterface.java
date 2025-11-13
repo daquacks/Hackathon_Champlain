@@ -1,6 +1,7 @@
 package org.example.hackathon;
 
 import javafx.application.Application;
+import javafx.geometry.Orientation;
 import javafx.stage.Stage;
 import javafx.geometry.*;
 import javafx.scene.Scene;
@@ -35,11 +36,10 @@ public class GameInterface{
         root.setPrefSize(1280, 720); // Matched size to launcher
 
         setupLeftPanel();
-        setupChatPanel();
+        setupChatPanel(); // This will now set the center of the root pane
 
         // Assemble layout
         root.setLeft(leftPanel);
-        root.setCenter(chatScroll);
 
         Scene scene = new Scene(root);
         // Make sure game.css is in src/main/resources/styles/
@@ -124,14 +124,58 @@ public class GameInterface{
     }
 
     private void setupChatPanel() {
+        // --- 1. Chat History Display ---
         chatBox = new VBox(10);
         chatBox.setPadding(new Insets(10));
         chatBox.setFillWidth(true);
-        chatBox.setStyle("-fx-background-color: #0d0d0d;");
 
         chatScroll = new ScrollPane(chatBox);
         chatScroll.setFitToWidth(true);
         chatScroll.setStyle("-fx-background: #0d0d0d; -fx-border-color: #333;");
+        VBox.setVgrow(chatScroll, Priority.ALWAYS); // Make chat history expand
+
+        // --- 2. Message Input Area ---
+        TextField messageInput = new TextField();
+        messageInput.setPromptText("Type your message to the commander...");
+        messageInput.setPrefHeight(40);
+        HBox.setHgrow(messageInput, Priority.ALWAYS);
+
+        Button sendButton = new Button("Send");
+        sendButton.setPrefHeight(40);
+        sendButton.getStyleClass().add("send-button"); // For styling
+        sendButton.setOnAction(e -> {
+            String message = messageInput.getText();
+            if (!message.trim().isEmpty()) {
+                addChatMessage("Player: " + message, false); // 'false' for player message
+                messageInput.clear();
+                // TODO: Add logic to process the sent message (e.g., send to game logic)
+            }
+        });
+
+        HBox inputArea = new HBox(10, messageInput, sendButton);
+        inputArea.setPadding(new Insets(10, 0, 0, 0)); // Top padding
+
+        // --- 3. Predetermined Response Buttons ---
+        FlowPane predeterminedResponses = new FlowPane(Orientation.HORIZONTAL, 10, 10);
+        predeterminedResponses.setPadding(new Insets(10, 0, 0, 0)); // Top padding
+        String[] responses = {"Acknowledged, commander.", "What is the primary objective?", "I need more details on that.", "On my way to the location."};
+        for (String response : responses) {
+            Button responseButton = new Button(response);
+            responseButton.getStyleClass().add("response-button");
+            responseButton.setOnAction(e -> {
+                addChatMessage("Player: " + response, false);
+                // TODO: Add logic to process the chosen response
+            });
+            predeterminedResponses.getChildren().add(responseButton);
+        }
+
+        // --- 4. Main Chat Panel Container ---
+        VBox chatPanel = new VBox(10, chatScroll, inputArea, predeterminedResponses);
+        chatPanel.setPadding(new Insets(10));
+        chatPanel.setStyle("-fx-background-color: #1a1a1a;"); // Dark background for the whole panel
+
+        // Set the new chat panel as the center of the main layout
+        root.setCenter(chatPanel);
     }
 
     public void addChatMessage(String message, boolean fromAstronaut) {
