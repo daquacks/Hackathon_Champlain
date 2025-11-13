@@ -68,11 +68,11 @@ public class GameInterface {
         mapPane.setPrefHeight(400);
         mapPane.setStyle("-fx-background-color: #111820; -fx-border-color: #555; -fx-border-width: 2;");
 
-//        // Optional: background image of Mars
-//        ImageView marsMap = new ImageView(new Image(getClass().getResourceAsStream("mars_base_map.png")));
-//        marsMap.setFitWidth(380);
-//        marsMap.setPreserveRatio(true);
-//        mapPane.getChildren().add(marsMap);
+        // Optional: background image of Mars
+        ImageView marsMap = new ImageView(new Image(getClass().getResourceAsStream("mars_base_map.png")));
+        marsMap.setFitWidth(380);
+        marsMap.setPreserveRatio(true);
+        mapPane.getChildren().add(marsMap);
 
         // Bottom: resources
         resourcePanel = new VBox(10);
