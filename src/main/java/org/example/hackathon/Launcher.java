@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -13,6 +14,7 @@ import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -29,18 +31,19 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import java.util.Map;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
 
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
-            "In 2030, humans managed to reach Mars.",
-            "The current year is 2035, and you are working as a radio communicator.",
-            "Suddenly, you receive a distress call,",
-            "And you must help a human reach the base on Mars safely without dying.",
-            "Will you get your head in the game and fight for the life of a stranger?",
-            "Or will you be a coward and let him die?"
+            "Five years ago, in 2030, humanity's dream of touching Mars became reality.",
+            "Now, in 2035, you are the sole lifeline... the only voice connecting the Ares-7 colony back to Earth.",
+            "The long silence is shattered by a single, desperate transmission.",
+            "\"...static... reactor failure... life support critical... can anyone hear me...?\"",
+            "The signal dies. Their fate is now in your hands.",
+            "Will you answer the call?"
     };
 
     private static final Duration FADE_DURATION = Duration.seconds(2.5);
@@ -170,31 +173,28 @@ public class Launcher extends Application {
         masterSequence.getChildren().add(choiceSequence);
         masterSequence.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
 
+        // --- Skip Intro Logic ---
+        Label skipLabel = new Label("Press Enter to skip");
+        skipLabel.setFont(Font.font("Arial", 14));
+        skipLabel.setTextFill(Color.GRAY);
+        skipLabel.setPadding(new Insets(10));
+        StackPane.setAlignment(skipLabel, Pos.BOTTOM_RIGHT);
+        root.getChildren().add(skipLabel);
+
+        root.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) {
+                masterSequence.stop();
+                root.getChildren().clear();
+                showTitleMenu(primaryStage);
+            }
+        });
+        root.setFocusTraversable(true);
+        root.requestFocus();
+
         // --- Part 4: OnFinished handler (MODIFIED) ---
         masterSequence.setOnFinished(event -> {
-            System.out.println("Intro animation finished!");
-
-            String finalMessage = "Press Any Key to Continue"; // Changed text
-            Label finishedLabel = createStyledLabel(finalMessage);
-            root.getChildren().clear(); // Clear previous labels
-            root.getChildren().add(finishedLabel);
-
-            Animation finalTyping = createTypingAnimation(finishedLabel, finalMessage);
-            finalTyping.play();
-
-            // --- REMOVED the background timeline, as it's not needed for the menu ---
-
-            // --- MODIFIED KEY PRESS ---
-            // This now triggers the flash-bang and loads the menu
-            root.setOnKeyPressed(e -> {
-                System.out.println("Key pressed, showing main menu...");
-
-                // Call the new method to show the menu with a flash
-                showTitleMenu(primaryStage);
-
-            });
-            root.setFocusTraversable(true); // Make sure the root can receive key events
-            root.requestFocus(); // Give focus to the root
+            root.getChildren().remove(skipLabel); // Clean up skip label
+            showTitleMenu(primaryStage);
         });
 
         masterSequence.play();
