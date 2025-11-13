@@ -1,20 +1,36 @@
 package org.example.hackathon;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DialogueLoader {
+
+    // Wrapper class to match the JSON structure {"dialogues": [...]}
+    private static class DialogueFile {
+        List<Dialogue> dialogues;
+    }
+
     public static Map<String, Dialogue> loadFromResource(String resourcePath) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+        Gson gson = new Gson();
         try (InputStream is = DialogueLoader.class.getResourceAsStream(resourcePath)) {
-            DialogueBundle bundle = mapper.readValue(is, DialogueBundle.class);
-            Map<String, Dialogue> map = new HashMap<>();
-            if (bundle != null && bundle.dialogues != null) {
-                for (Dialogue d : bundle.dialogues) map.put(d.id, d);
+            if (is == null) {
+                throw new Exception("Cannot find resource: " + resourcePath);
             }
-            return map;
+            InputStreamReader reader = new InputStreamReader(is);
+            DialogueFile dialogueFile = gson.fromJson(reader, DialogueFile.class);
+
+            if (dialogueFile == null || dialogueFile.dialogues == null) {
+                return new HashMap<>();
+            }
+
+            // Convert the list of dialogues into a map, keyed by dialogue ID
+            return dialogueFile.dialogues.stream()
+                    .collect(Collectors.toMap(d -> d.id, d -> d));
         }
     }
 }

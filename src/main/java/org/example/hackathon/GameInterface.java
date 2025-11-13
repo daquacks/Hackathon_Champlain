@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.scene.text.Text;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GameInterface{
@@ -26,8 +27,14 @@ public class GameInterface{
     private VBox resourcePanel;
     private ScrollPane chatScroll;
     private VBox chatBox;
+    private FlowPane choicePane;
     private Map<String, ProgressBar> resourceBars;
     private Map<String, Label> resourceLabels;
+
+    @FunctionalInterface
+    public interface ChoiceSelectedCallback {
+        void onChoiceSelected(Choice choice);
+    }
 
 
     // --- Constructor ---
@@ -134,48 +141,34 @@ public class GameInterface{
         chatScroll.setStyle("-fx-background: #0d0d0d; -fx-border-color: #333;");
         VBox.setVgrow(chatScroll, Priority.ALWAYS); // Make chat history expand
 
-        // --- 2. Message Input Area ---
-        TextField messageInput = new TextField();
-        messageInput.setPromptText("Type your message to the commander...");
-        messageInput.setPrefHeight(40);
-        HBox.setHgrow(messageInput, Priority.ALWAYS);
+        // --- 2. Predetermined Response Buttons ---
+        choicePane = new FlowPane(Orientation.HORIZONTAL, 10, 10);
+        choicePane.setPadding(new Insets(10, 0, 0, 0)); // Top padding
 
-        Button sendButton = new Button("Send");
-        sendButton.setPrefHeight(40);
-        sendButton.getStyleClass().add("send-button"); // For styling
-        sendButton.setOnAction(e -> {
-            String message = messageInput.getText();
-            if (!message.trim().isEmpty()) {
-                addChatMessage("Player: " + message, false); // 'false' for player message
-                messageInput.clear();
-                // TODO: Add logic to process the sent message (e.g., send to game logic)
-            }
-        });
-
-        HBox inputArea = new HBox(10, messageInput, sendButton);
-        inputArea.setPadding(new Insets(10, 0, 0, 0)); // Top padding
-
-        // --- 3. Predetermined Response Buttons ---
-        FlowPane predeterminedResponses = new FlowPane(Orientation.HORIZONTAL, 10, 10);
-        predeterminedResponses.setPadding(new Insets(10, 0, 0, 0)); // Top padding
-        String[] responses = {"Acknowledged, commander.", "What is the primary objective?", "I need more details on that.", "On my way to the location."};
-        for (String response : responses) {
-            Button responseButton = new Button(response);
-            responseButton.getStyleClass().add("response-button");
-            responseButton.setOnAction(e -> {
-                addChatMessage("Player: " + response, false);
-                // TODO: Add logic to process the chosen response
-            });
-            predeterminedResponses.getChildren().add(responseButton);
-        }
-
-        // --- 4. Main Chat Panel Container ---
-        VBox chatPanel = new VBox(10, chatScroll, inputArea, predeterminedResponses);
+        // --- 3. Main Chat Panel Container ---
+        VBox chatPanel = new VBox(10, chatScroll, choicePane);
         chatPanel.setPadding(new Insets(10));
         chatPanel.setStyle("-fx-background-color: #1a1a1a;"); // Dark background for the whole panel
 
         // Set the new chat panel as the center of the main layout
         root.setCenter(chatPanel);
+    }
+
+    public void setChoices(List<Choice> choices, ChoiceSelectedCallback callback) {
+        choicePane.getChildren().clear();
+        if (choices == null || choices.isEmpty()) {
+            return;
+        }
+
+        for (Choice choice : choices) {
+            Button responseButton = new Button(choice.text);
+            responseButton.getStyleClass().add("response-button");
+            responseButton.setOnAction(e -> {
+                addChatMessage("Control: " + choice.text, false);
+                callback.onChoiceSelected(choice);
+            });
+            choicePane.getChildren().add(responseButton);
+        }
     }
 
     public void addChatMessage(String message, boolean fromAstronaut) {

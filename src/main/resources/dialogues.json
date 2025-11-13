@@ -1,24 +1,89 @@
 {
   "dialogues": [
     {
-      "id": "intro",
+      "id": "start",
       "lines": [
-        "In 2035, you are a radio communicator.",
-        "A distress call arrives."
+        "Control: Commander Hale, we're reading you. The rover's telemetry is gone. Report.",
+        "Hale: The engine... it's dead. Fuel leak. I'm over 1000km from the ship.",
+        "Control: Understood. Your food supplies won't last. You have no choice but to go on foot.",
+        "Control: We've analyzed the terrain data. We have two potential routes for you. Listen carefully."
       ],
       "choices": [
-        { "text": "Help them", "nextId": "help_path" },
-        { "text": "Walk away", "nextId": "coward_path" }
+        { "text": "Proceed to the ridge, northeast of your position.", "nextId": "ridge" },
+        { "text": "Walk towards the large crater to the northwest.", "nextId": "crater" }
       ]
     },
     {
-      "id": "help_path",
-      "lines": ["You chose to help. The mission begins..."],
+      "id": "ridge",
+      "lines": [
+        "Control: You're heading for the ridge. It will be a hard climb, but it offers a high vantage point.",
+        "Hale: Copy that. Beginning my ascent... The rocks are loose here... I'm up. I can see something from here.",
+        "Hale: Down in the crater... it looks like a campsite."
+      ],
+      "choices": [
+        { "text": "Descend and investigate the camp.", "nextId": "crater_arrival" },
+        { "text": "Too risky. Return to the rover.", "nextId": "return_to_rover_death" }
+      ]
+    },
+    {
+      "id": "crater",
+      "lines": [
+        "Control: You're heading directly for the crater. Be cautious, we have no data on this area.",
+        "Hale: I'm approaching the crater rim... I see it. There's a makeshift campsite below. The fire's still hot, but... there's no one here. It's silent."
+      ],
+      "choices": [
+        { "text": "Search the campsite for supplies.", "nextId": "search_camp" },
+        { "text": "This is a bad idea. Go back.", "nextId": "return_to_rover_death" }
+      ]
+    },
+    {
+        "id": "crater_arrival",
+        "lines": [
+          "Hale: I've reached the campsite. It's eerie. Tents are set up, but supplies are scattered everywhere. This place was abandoned in a hurry."
+        ],
+        "choices": [
+            { "text": "Search the tents for anything useful.", "nextId": "search_camp" },
+            { "text": "Report back to Control and leave.", "nextId": "return_to_rover_death" }
+        ]
+    },
+    {
+      "id": "return_to_rover_death",
+      "lines": [
+        "Hale: I'm turning back. This doesn't feel right.",
+        "Control: Commander, we advise against this. Your resources are critical.",
+        "Hale: The walk is... harder than I thought. The sun... so hot...",
+        "Control: Commander? Commander Hale, do you copy?!",
+        "...Signal Lost..."
+      ],
       "choices": []
     },
     {
-      "id": "coward_path",
-      "lines": ["You chose to walk away. Consequences follow..."],
+      "id": "search_camp",
+      "lines": [
+        "Hale: I'm searching the tents. Found some tools, a ration pack... it's half-eaten.",
+        "Hale: Wait... I heard something. A metallic clang, just outside."
+      ],
+      "choices": [
+        { "text": "Hide. Now.", "nextId": "hide" },
+        { "text": "Go check it out. Be ready for anything.", "nextId": "check_sound" }
+      ]
+    },
+    {
+      "id": "hide",
+      "lines": [
+        "Hale: Hiding. I'm in one of the tents, behind some crates.",
+        "Hale: I hear voices... multiple. They don't sound... right. Guttural.",
+        "Hale: I'm peeking through a tear in the tent... I see someone. Another astronaut. But his suit is torn, and his skin... it's cracked, broken. He's not alone."
+      ],
+      "choices": []
+    },
+    {
+      "id": "check_sound",
+      "lines": [
+        "Hale: Moving to check the sound. Cautiously.",
+        "Hale: I'm rounding a large rock formation... There's someone here.",
+        "Hale: It's another astronaut. Suit's damaged, he looks gaunt... exhausted. He's raising his hand... I don't think it's a threat. I think he needs help."
+      ],
       "choices": []
     }
   ]
