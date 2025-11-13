@@ -292,7 +292,7 @@ public class Launcher extends Application {
         SequentialTransition seq = new SequentialTransition();
 
         for (String line : d.lines) {
-            boolean isControl = line.startsWith("Control:");
+            boolean isControl = line.startsWith("Hale:");
             boolean onLeftSide = isControl;
 
             PauseTransition pause = new PauseTransition(Duration.seconds(2));

@@ -3,46 +3,92 @@
     {
       "id": "start",
       "lines": [
-        "Control: Commander Hale, we're reading you. The rover's telemetry is gone. Report.",
+        "Operator: Commander Hale, we're reading you. The rover's telemetry is gone. Report.",
         "Hale: The engine... it's dead. Fuel leak. I'm over 1000km from the ship.",
-        "Control: Understood. Your food supplies won't last. You have no choice but to go on foot.",
-        "Control: We've analyzed the terrain data. We have two potential routes for you. Listen carefully."
+        "Operator: Understood. Your food supplies won't last. You have no choice but to go on foot.",
+        "Operator: We've analyzed the terrain data. There are two potential routes. Listen carefully.",
+        "Operator: Stay calm, Hale. Every step counts."
       ],
       "choices": [
         { "text": "Proceed to the ridge, northeast of your position.", "nextId": "ridge" },
-        { "text": "Walk towards the large crater to the northwest.", "nextId": "crater" }
+        { "text": "Walk towards the large crater to the northwest.", "nextId": "crater" },
+        { "text": "Check your remaining supplies before moving.", "nextId": "check_supplies" }
+      ]
+    },
+
+    {
+      "id": "check_supplies",
+      "lines": [
+        "Hale: Checking supplies… Oxygen at 70%, food packs: 2, water: 1 liter.",
+        "Operator: Good. You need to ration carefully. Keep moving, Hale."
+      ],
+      "choices": [
+        { "text": "Head to the ridge now.", "nextId": "ridge" },
+        { "text": "Walk towards the crater.", "nextId": "crater" }
       ]
     },
 
     {
       "id": "ridge",
       "lines": [
-        "Control: You're heading for the ridge. It will be a hard climb, but it offers a high vantage point.",
+        "Operator: You're heading for the ridge. It will be a hard climb, but it offers a high vantage point.",
         "Hale: Copy that. Beginning my ascent... The rocks are loose here... I'm up. I can see something from here.",
-        "Hale: Down in the crater... it looks like a campsite."
+        "Hale: Down in the crater... it looks like a campsite.",
+        "Operator: Watch your footing, Hale. Any injury could be fatal at this distance."
       ],
       "choices": [
         { "text": "Descend and investigate the camp.", "nextId": "crater_arrival" },
-        { "text": "Too risky. Head for home instead.", "nextId": "good_end" }
+        { "text": "Too risky. Head for home instead.", "nextId": "good_end" },
+        { "text": "Call back to Operator for further instructions.", "nextId": "radio_check" }
+      ]
+    },
+
+    {
+      "id": "radio_check",
+      "lines": [
+        "Hale: Operator, do you have any updates on the terrain?",
+        "Operator: Negative, Hale. The terrain data is incomplete. You must decide your path.",
+        "Hale: Understood. I'll take the ridge cautiously."
+      ],
+      "choices": [
+        { "text": "Proceed carefully to the ridge.", "nextId": "ridge" }
       ]
     },
 
     {
       "id": "crater",
       "lines": [
-        "Control: You're heading directly for the crater. Be cautious, we have no data on this area.",
-        "Hale: I'm approaching the crater rim... I see it. There's a makeshift campsite below. The fire's still hot, but... there's no one here. It's silent."
+        "Operator: You're heading directly for the crater. Be cautious, we have no data on this area.",
+        "Hale: I'm approaching the crater rim... I see it. There's a makeshift campsite below. The fire's still hot, but... there's no one here. It's silent.",
+        "Operator: Stay alert. Something feels off about this place.",
+        "Hale: Copy that. Proceeding with caution."
       ],
       "choices": [
         { "text": "Search the campsite for supplies.", "nextId": "search_camp" },
-        { "text": "This is too strange. Head back to the ship.", "nextId": "good_end" }
+        { "text": "This is too strange. Head back to the ship.", "nextId": "good_end" },
+        { "text": "Scout the perimeter first.", "nextId": "crater_perimeter" }
+      ]
+    },
+
+    {
+      "id": "crater_perimeter",
+      "lines": [
+        "Hale: Moving around the crater's edge, scanning for any signs of life or danger.",
+        "Hale: There are footprints… recent. Someone was here not long ago.",
+        "Operator: Good observation. That might be valuable info. Proceed carefully."
+      ],
+      "choices": [
+        { "text": "Enter the campsite.", "nextId": "search_camp" },
+        { "text": "Return to the ridge for safety.", "nextId": "ridge" }
       ]
     },
 
     {
       "id": "crater_arrival",
       "lines": [
-        "Hale: I've reached the campsite. It's eerie. Tents are set up, but supplies are scattered everywhere. This place was abandoned in a hurry."
+        "Hale: I've reached the campsite. It's eerie. Tents are set up, but supplies are scattered everywhere. This place was abandoned in a hurry.",
+        "Operator: Any signs of life, Hale?",
+        "Hale: No, Operator. Just traces… like someone left in a hurry."
       ],
       "choices": [
         { "text": "Search the tents for anything useful.", "nextId": "search_camp" },
@@ -54,11 +100,27 @@
       "id": "search_camp",
       "lines": [
         "Hale: I'm searching the tents. Found some tools, a ration pack... it's half-eaten.",
-        "Hale: Wait... I heard something. A metallic clang, just outside."
+        "Hale: Wait... I heard something. A metallic clang, just outside.",
+        "Operator: Stay calm, Hale. You're not alone, be prepared for anything.",
+        "Hale: Copy that… I'm ready."
       ],
       "choices": [
         { "text": "Hide. Now.", "nextId": "hide" },
-        { "text": "Investigate the sound.", "nextId": "check_sound" }
+        { "text": "Investigate the sound.", "nextId": "check_sound" },
+        { "text": "Signal Operator for backup.", "nextId": "signal_control" }
+      ]
+    },
+
+    {
+      "id": "signal_control",
+      "lines": [
+        "Hale: Operator, I hear something… outside the tents.",
+        "Operator: Stay calm, Hale. Keep low. Backup cannot reach you immediately.",
+        "Hale: Copy that. I'll proceed cautiously."
+      ],
+      "choices": [
+        { "text": "Hide and observe.", "nextId": "hide" },
+        { "text": "Investigate quietly.", "nextId": "check_sound" }
       ]
     },
 
@@ -80,11 +142,13 @@
       "lines": [
         "Hale: Moving to check the sound. Cautiously.",
         "Hale: I'm rounding a large rock formation... There's someone here.",
-        "Hale: It's another astronaut. Suit's damaged, he looks gaunt... exhausted. He's raising his hand... I don't think it's a threat. I think he needs help."
+        "Hale: It's another astronaut. Suit's damaged, he looks gaunt... exhausted. He's raising his hand... I don't think it's a threat. I think he needs help.",
+        "Operator: Good assessment, Hale. Proceed carefully, help him if possible."
       ],
       "choices": [
         { "text": "Help the astronaut back to the ship.", "nextId": "good_end" },
-        { "text": "Back away slowly… this is dangerous.", "nextId": "death_end" }
+        { "text": "Back away slowly… this is dangerous.", "nextId": "death_end" },
+        { "text": "Offer some rations before moving.", "nextId": "good_end" }
       ]
     },
 
@@ -92,11 +156,11 @@
       "id": "good_end",
       "lines": [
         "Hale: Beginning long trek back to the ship.",
-        "Control: Copy that, Commander. We're tracking you. Keep your pace steady.",
+        "Operator: Copy that, Commander. We're tracking you. Keep your pace steady.",
         "Hours pass… The horizon glows with the warm light of your landing craft.",
-        "Control: We see you! You're almost home!",
+        "Operator: We see you! You're almost home!",
         "Hale: Entering airlock… Life support stabilizing.",
-        "Control: Welcome back, Commander. You survived Mars."
+        "Operator: Welcome back, Commander. You survived Mars."
       ],
       "choices": []
     },
@@ -105,11 +169,11 @@
       "id": "death_end",
       "lines": [
         "Hale: Something's wrong… the comms…",
-        "Control: Commander? Your vitals just spiked—",
+        "Operator: Commander? Your vitals just spiked—",
         "A shadow moves across the camera feed. Distorted. Wrong.",
-        "Control: Hale?! Respond!",
+        "Operator: Hale?! Respond!",
         "…Static…",
-        "Control: Signal lost. Commander Hale is gone."
+        "Operator: Signal lost. Commander Hale is gone."
       ],
       "choices": []
     }
