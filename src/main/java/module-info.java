@@ -5,7 +5,6 @@ module org.example.hackathon {
     requires javafx.graphics;
     requires javafx.base;
 
-
     opens org.example.hackathon to javafx.fxml;
     exports org.example.hackathon;
 }
