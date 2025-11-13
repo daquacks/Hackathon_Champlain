@@ -1,0 +1,25 @@
+{
+  "dialogues": [
+    {
+      "id": "intro",
+      "lines": [
+        "In 2035, you are a radio communicator.",
+        "A distress call arrives."
+      ],
+      "choices": [
+        { "text": "Help them", "nextId": "help_path" },
+        { "text": "Walk away", "nextId": "coward_path" }
+      ]
+    },
+    {
+      "id": "help_path",
+      "lines": ["You chose to help. The mission begins..."],
+      "choices": []
+    },
+    {
+      "id": "coward_path",
+      "lines": ["You chose to walk away. Consequences follow..."],
+      "choices": []
+    }
+  ]
+}
