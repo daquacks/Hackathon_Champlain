@@ -38,6 +38,9 @@ import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
 
+    //Sound value
+    public static float audioValue;
+
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
             "Five years ago, in 2030, humanity's dream of touching Mars became reality.",
@@ -237,6 +240,7 @@ public class Launcher extends Application {
                     float min = volumeControl.getMinimum();
                     float max = volumeControl.getMaximum();
                     float value = min + (max - min) * newVal.floatValue();
+                    audioValue = value;
                     volumeControl.setValue(value);
                 });
             }
