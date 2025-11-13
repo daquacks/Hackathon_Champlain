@@ -271,7 +271,6 @@ public class Launcher extends Application {
 
         System.out.println(this.dialogues);
 
-
         // Switch to game UI
         Transitions.flashbang(primaryStage, mainUI.getRoot());
 
@@ -289,30 +288,34 @@ public class Launcher extends Application {
             return;
         }
 
-        // Show each line one by one
+        // Sequentially display each line with a delay
+        SequentialTransition seq = new SequentialTransition();
+
         for (String line : d.lines) {
             boolean isControl = line.startsWith("Control:");
-            boolean isHale    = line.startsWith("Hale:");
-
-            // Control = left side, Hale = right side
             boolean onLeftSide = isControl;
 
-            ui.addChatMessage(line, onLeftSide);
+            PauseTransition pause = new PauseTransition(Duration.seconds(2));
+            pause.setOnFinished(e -> ui.addChatMessage(line, onLeftSide));
+
+            seq.getChildren().add(pause);
         }
 
-        // If no choices -> end (death or good ending)
-        if (d.choices == null || d.choices.isEmpty()) {
-            ui.addChatMessage("[END OF TRANSMISSION]", true);
-            return;
-        }
-
-        // Show choices in the GameInterface
-        ui.showChoices(d.choices, choice -> {
-            // When user clicks a choice button
-            ui.clearChoices();
-            playDialogueNodeInGame(choice.nextId, ui);
+        // After lines, handle choices or end
+        seq.setOnFinished(event -> {
+            if (d.choices == null || d.choices.isEmpty()) {
+                ui.addChatMessage("[END OF TRANSMISSION]", true);
+                return;
+            }
+            ui.showChoices(d.choices, choice -> {
+                ui.clearChoices();
+                playDialogueNodeInGame(choice.nextId, ui);
+            });
         });
+
+        seq.play();
     }
+
 
     private void loadDialogues() {
         try {
