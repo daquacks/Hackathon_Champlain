@@ -67,44 +67,64 @@ public class Launcher extends Application {
         playIntroAnimation(root, primaryStage);
     }
 
-    // simple dialog presenter; replace PauseTransition with your typing animation if available
     private void showDialogue(StackPane root, String id, Stage primaryStage) {
         Dialogue d = dialogues == null ? null : dialogues.get(id);
         if (d == null) return;
 
+        // overlay container so background/menu remains visible
         VBox container = new VBox(12);
         container.setMaxWidth(900);
-        container.setStyle("-fx-padding: 20;");
-        root.getChildren().setAll(container);
+        container.setStyle("-fx-padding: 20; -fx-background-color: rgba(0,0,0,0.7); -fx-background-radius: 8;");
+        container.setAlignment(Pos.CENTER);
+        root.getChildren().add(container);
 
         SequentialTransition seq = new SequentialTransition();
-        for (String line : d.lines) {
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.6));
-            pause.setOnFinished(e -> {
-                Label lbl = new Label(line);
+
+        if (d.lines != null && !d.lines.isEmpty()) {
+            for (String line : d.lines) {
+                Label lbl = createStyledLabel("");
                 lbl.setWrapText(true);
                 lbl.setMaxWidth(800);
                 container.getChildren().add(lbl);
-            });
-            seq.getChildren().add(pause);
+
+                // typing animation followed by a small pause
+                seq.getChildren().add(createTypingAnimation(lbl, line));
+                seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
+            }
+        } else {
+            // no lines -> small pause before choices or auto-advance
+            seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
         }
 
         seq.setOnFinished(e -> {
+            // if no choices: remove UI and continue (launch game or return)
             if (d.choices == null || d.choices.isEmpty()) {
-                // no choices -> continue (example: start the game)
+                root.getChildren().remove(container);
                 launchGame(primaryStage);
                 return;
             }
-            HBox choicesBox = new HBox(10);
-            for (var c : d.choices) {
+
+            // build choices row, limit to 4 buttons for layout sanity
+            HBox choicesBox = new HBox(12);
+            choicesBox.setAlignment(Pos.CENTER);
+            int shown = 0;
+            for (Choice c : d.choices) {
+                if (shown++ >= 4) break;
                 Button b = new Button(c.text);
+                b.setStyle("-fx-font-size: 18px; -fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;");
                 b.setOnAction(evt -> {
-                    if (c.nextId == null || c.nextId.isEmpty()) launchGame(primaryStage);
-                    else showDialogue(root, c.nextId, primaryStage);
+                    // remove this dialogue UI then navigate
+                    root.getChildren().remove(container);
+                    if (c.nextId == null || c.nextId.isBlank()) {
+                        launchGame(primaryStage);
+                    } else {
+                        showDialogue(root, c.nextId, primaryStage);
+                    }
                 });
                 choicesBox.getChildren().add(b);
             }
             container.getChildren().add(choicesBox);
+            container.requestFocus();
         });
 
         seq.play();
