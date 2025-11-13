@@ -85,12 +85,13 @@ public class MenuClass extends Application {
     -fx-padding: 2px;
 """);
 
-        String musicPath = "/Users/nicolasbeauchemin/Documents/Hackathon_Champlain/src/main/resources/music/spaceMusic.wav"; // full path to WAV
-
         try {
-            File musicFile = new File(musicPath);
-            if (musicFile.exists()) {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicFile);
+            // Get the resource URL from the classpath
+            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
+            if (musicUrl == null) {
+                System.out.println("⚠️ Music file not found in resources!");
+            } else {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInput);
                 clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
@@ -99,16 +100,13 @@ public class MenuClass extends Application {
                 // Connect volume slider
                 FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
                 volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                    float min = volumeControl.getMinimum(); // usually -80
-                    float max = volumeControl.getMaximum(); // usually 6
+                    float min = volumeControl.getMinimum();
+                    float max = volumeControl.getMaximum();
                     float value = min + (max - min) * newVal.floatValue();
                     volumeControl.setValue(value);
                 });
-
-            } else {
-                System.out.println("Music file not found: " + musicPath);
             }
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         HBox sliderBox = new HBox(volumeSlider);
