@@ -1,5 +1,5 @@
 package org.example.hackathon;
-
+import java.util.Map;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -13,6 +13,7 @@ import javafx.scene.canvas.Canvas; // --- ADDED ---
 import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.control.Slider;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -69,44 +70,64 @@ public class Launcher extends Application {
         playIntroAnimation(root, primaryStage);
     }
 
-    // simple dialog presenter; replace PauseTransition with your typing animation if available
     private void showDialogue(StackPane root, String id, Stage primaryStage) {
         Dialogue d = dialogues == null ? null : dialogues.get(id);
         if (d == null) return;
 
+        // overlay container so background/menu remains visible
         VBox container = new VBox(12);
         container.setMaxWidth(900);
-        container.setStyle("-fx-padding: 20;");
-        root.getChildren().setAll(container);
+        container.setStyle("-fx-padding: 20; -fx-background-color: rgba(0,0,0,0.7); -fx-background-radius: 8;");
+        container.setAlignment(Pos.CENTER);
+        root.getChildren().add(container);
 
         SequentialTransition seq = new SequentialTransition();
-        for (String line : d.lines) {
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.6));
-            pause.setOnFinished(e -> {
-                Label lbl = new Label(line);
+
+        if (d.lines != null && !d.lines.isEmpty()) {
+            for (String line : d.lines) {
+                Label lbl = createStyledLabel("");
                 lbl.setWrapText(true);
                 lbl.setMaxWidth(800);
                 container.getChildren().add(lbl);
-            });
-            seq.getChildren().add(pause);
+
+                // typing animation followed by a small pause
+                seq.getChildren().add(createTypingAnimation(lbl, line));
+                seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
+            }
+        } else {
+            // no lines -> small pause before choices or auto-advance
+            seq.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
         }
 
         seq.setOnFinished(e -> {
+            // if no choices: remove UI and continue (launch game or return)
             if (d.choices == null || d.choices.isEmpty()) {
-                // no choices -> continue (example: start the game)
+                root.getChildren().remove(container);
                 launchGame(primaryStage);
                 return;
             }
-            HBox choicesBox = new HBox(10);
-            for (var c : d.choices) {
+
+            // build choices row, limit to 4 buttons for layout sanity
+            HBox choicesBox = new HBox(12);
+            choicesBox.setAlignment(Pos.CENTER);
+            int shown = 0;
+            for (Choice c : d.choices) {
+                if (shown++ >= 4) break;
                 Button b = new Button(c.text);
+                b.setStyle("-fx-font-size: 18px; -fx-background-color: rgba(255,255,255,0.06); -fx-text-fill: white;");
                 b.setOnAction(evt -> {
-                    if (c.nextId == null || c.nextId.isEmpty()) launchGame(primaryStage);
-                    else showDialogue(root, c.nextId, primaryStage);
+                    // remove this dialogue UI then navigate
+                    root.getChildren().remove(container);
+                    if (c.nextId == null || c.nextId.isBlank()) {
+                        launchGame(primaryStage);
+                    } else {
+                        showDialogue(root, c.nextId, primaryStage);
+                    }
                 });
                 choicesBox.getChildren().add(b);
             }
             container.getChildren().add(choicesBox);
+            container.requestFocus();
         });
 
         seq.play();
@@ -311,7 +332,10 @@ public class Launcher extends Application {
                 new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
                 new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
                 new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
-                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140))
+                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140)),
+                new KeyFrame(Duration.seconds(15), ev -> mainUI.addChatMessage("Control Center: Go fuck yourself, Hale.", false)),
+                new KeyFrame(Duration.seconds(18), ev -> mainUI.addChatMessage("Commander Hale: :(", true)),
+                new KeyFrame(Duration.seconds(21), ev -> mainUI.addChatMessage("Alien: hahaha that was actually funny man", true))
         );
         chatTimeline.play();
     }
@@ -324,7 +348,7 @@ public class Launcher extends Application {
         Font retroFont = null;
         try {
             // NOTE: Make sure your font file is named this or fix the path!
-            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 60);
+            retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 36);
         } catch (Exception e) {
             System.err.println("Could not load font! Using default. Error: " + e.getMessage());
         }
