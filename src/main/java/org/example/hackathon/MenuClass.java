@@ -26,7 +26,12 @@ public class MenuClass extends Application {
         // === Background with stars ===
         Canvas canvas = new Canvas(800, 600);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawStars(gc, 200);
+        drawStars(gc, 20220);
+
+        canvas.widthProperty().bind(stage.widthProperty());
+        canvas.heightProperty().bind(stage.heightProperty());
+        canvas.widthProperty().addListener((obs, o, n) -> drawStars(gc, 22200));
+        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 10));
 
 
         // === Title Label ===
@@ -76,12 +81,17 @@ public class MenuClass extends Application {
 
     private void drawStars(GraphicsContext gc, int count) {
         Random rand = new Random();
+
+        double width = gc.getCanvas().getWidth();
+        double height = gc.getCanvas().getHeight();
+
         gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, 800, 600);
+        gc.fillRect(0, 0, width, height);
+
         gc.setFill(Color.WHITE);
         for (int i = 0; i < count; i++) {
-            double x = rand.nextDouble() * 800;
-            double y = rand.nextDouble() * 600;
+            double x = rand.nextDouble() * width;
+            double y = rand.nextDouble() * height;
             double radius = rand.nextDouble() * 2;
             gc.fillOval(x, y, radius, radius);
         }
