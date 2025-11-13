@@ -81,7 +81,7 @@ public class GameInterface {
         mapPane.setStyle("-fx-background-color: #111; -fx-border-color: #444; -fx-border-width: 2;");
 
         try {
-            Image mapImg = new Image(getClass().getResourceAsStream("/mars_base_map.png"));
+            Image mapImg = new Image(getClass().getResourceAsStream("/org/example/hackathon/mars_base_map.png"));
             ImageView mapView = new ImageView(mapImg);
             mapView.setFitWidth(330);
             mapView.setPreserveRatio(true);
