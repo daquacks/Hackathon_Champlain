@@ -3,14 +3,13 @@ package org.example.hackathon;
 import javafx.animation.FadeTransition;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Animations {
+public class Transitions {
     public static void flashbang(Stage primaryStage, Node menuRoot) {
         // === 2. Build the Flash-Bang Transition ===
 
