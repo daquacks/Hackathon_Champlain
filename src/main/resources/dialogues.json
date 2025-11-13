@@ -13,6 +13,7 @@
         { "text": "Walk towards the large crater to the northwest.", "nextId": "crater" }
       ]
     },
+
     {
       "id": "ridge",
       "lines": [
@@ -22,9 +23,10 @@
       ],
       "choices": [
         { "text": "Descend and investigate the camp.", "nextId": "crater_arrival" },
-        { "text": "Too risky. Return to the rover.", "nextId": "return_to_rover_death" }
+        { "text": "Too risky. Head for home instead.", "nextId": "good_end" }
       ]
     },
+
     {
       "id": "crater",
       "lines": [
@@ -33,30 +35,21 @@
       ],
       "choices": [
         { "text": "Search the campsite for supplies.", "nextId": "search_camp" },
-        { "text": "This is a bad idea. Go back.", "nextId": "return_to_rover_death" }
+        { "text": "This is too strange. Head back to the ship.", "nextId": "good_end" }
       ]
     },
+
     {
-        "id": "crater_arrival",
-        "lines": [
-          "Hale: I've reached the campsite. It's eerie. Tents are set up, but supplies are scattered everywhere. This place was abandoned in a hurry."
-        ],
-        "choices": [
-            { "text": "Search the tents for anything useful.", "nextId": "search_camp" },
-            { "text": "Report back to Control and leave.", "nextId": "return_to_rover_death" }
-        ]
-    },
-    {
-      "id": "return_to_rover_death",
+      "id": "crater_arrival",
       "lines": [
-        "Hale: I'm turning back. This doesn't feel right.",
-        "Control: Commander, we advise against this. Your resources are critical.",
-        "Hale: The walk is... harder than I thought. The sun... so hot...",
-        "Control: Commander? Commander Hale, do you copy?!",
-        "...Signal Lost..."
+        "Hale: I've reached the campsite. It's eerie. Tents are set up, but supplies are scattered everywhere. This place was abandoned in a hurry."
       ],
-      "choices": []
+      "choices": [
+        { "text": "Search the tents for anything useful.", "nextId": "search_camp" },
+        { "text": "Abort. Start walking back toward the ship.", "nextId": "good_end" }
+      ]
     },
+
     {
       "id": "search_camp",
       "lines": [
@@ -65,9 +58,10 @@
       ],
       "choices": [
         { "text": "Hide. Now.", "nextId": "hide" },
-        { "text": "Go check it out. Be ready for anything.", "nextId": "check_sound" }
+        { "text": "Investigate the sound.", "nextId": "check_sound" }
       ]
     },
+
     {
       "id": "hide",
       "lines": [
@@ -75,14 +69,47 @@
         "Hale: I hear voices... multiple. They don't sound... right. Guttural.",
         "Hale: I'm peeking through a tear in the tent... I see someone. Another astronaut. But his suit is torn, and his skin... it's cracked, broken. He's not alone."
       ],
-      "choices": []
+      "choices": [
+        { "text": "Stay hidden…", "nextId": "death_end" },
+        { "text": "Make a run for it!", "nextId": "good_end" }
+      ]
     },
+
     {
       "id": "check_sound",
       "lines": [
         "Hale: Moving to check the sound. Cautiously.",
         "Hale: I'm rounding a large rock formation... There's someone here.",
         "Hale: It's another astronaut. Suit's damaged, he looks gaunt... exhausted. He's raising his hand... I don't think it's a threat. I think he needs help."
+      ],
+      "choices": [
+        { "text": "Help the astronaut back to the ship.", "nextId": "good_end" },
+        { "text": "Back away slowly… this is dangerous.", "nextId": "death_end" }
+      ]
+    },
+
+    {
+      "id": "good_end",
+      "lines": [
+        "Hale: Beginning long trek back to the ship.",
+        "Control: Copy that, Commander. We're tracking you. Keep your pace steady.",
+        "Hours pass… The horizon glows with the warm light of your landing craft.",
+        "Control: We see you! You're almost home!",
+        "Hale: Entering airlock… Life support stabilizing.",
+        "Control: Welcome back, Commander. You survived Mars."
+      ],
+      "choices": []
+    },
+
+    {
+      "id": "death_end",
+      "lines": [
+        "Hale: Something's wrong… the comms…",
+        "Control: Commander? Your vitals just spiked—",
+        "A shadow moves across the camera feed. Distorted. Wrong.",
+        "Control: Hale?! Respond!",
+        "…Static…",
+        "Control: Signal lost. Commander Hale is gone."
       ],
       "choices": []
     }
