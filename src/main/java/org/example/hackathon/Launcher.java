@@ -301,7 +301,7 @@ public class Launcher extends Application {
 
                 //Sound
                 try{
-                    java.net.URL musicURL = getClass().getResource("/music/notification.wav");
+                    java.net.URL musicURL = getClass().getResource("/music/Notification.wav");
                     if (musicURL == null) {
                         System.out.println("⚠️ Music file not found in resources!");
                     } else {
