@@ -10,12 +10,15 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 //import javafx.scene.media.Media;
 //import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import javax.swing.*;
 import java.io.File;
 import java.util.Random;
 
@@ -24,14 +27,17 @@ public class MenuClass extends Application {
     @Override
     public void start(Stage stage) {
         // === Background with stars ===
-        Canvas canvas = new Canvas(800, 600);
+        Canvas canvas = new Canvas();
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawStars(gc, 20220);
 
         canvas.widthProperty().bind(stage.widthProperty());
         canvas.heightProperty().bind(stage.heightProperty());
-        canvas.widthProperty().addListener((obs, o, n) -> drawStars(gc, 22200));
-        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 10));
+
+        drawStars(gc, 2020);
+
+
+        canvas.widthProperty().addListener(e-> drawStars(gc, 2000));
+        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 1000));
 
 
         // === Title Label ===
@@ -45,8 +51,30 @@ public class MenuClass extends Application {
 
         Label volumeLabel = new Label("Volume");
         volumeLabel.setTextFill(Color.WHITE);
+        volumeLabel.setStyle("""
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    
+    
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 20px;
+    -fx-alignment: center;
+""");
+
+
         Slider volumeSlider = new Slider(0, 1, 0.5);
-        volumeSlider.setPrefWidth(200);
+        volumeSlider.setPrefWidth(250); // shorter width
+        volumeSlider.setStyle("""
+    -fx-control-inner-background: black;
+    -fx-accent: white;
+    -fx-pref-height: 6px;
+    -fx-padding: 2px;
+""");
+
+        HBox sliderBox = new HBox(volumeSlider);
+        sliderBox.setAlignment(Pos.CENTER);
+        sliderBox.setPrefWidth(200);
 
         // === Music (optional) ===
         String musicPath = "src/main/resources/music.mp3"; // Replace with your file
@@ -67,15 +95,21 @@ public class MenuClass extends Application {
 //        }
 
         // === Layout ===
-        VBox vbox = new VBox(20, title, startButton, volumeLabel, volumeSlider);
+        VBox vbox = new VBox(20, title, startButton, volumeLabel, sliderBox);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane root = new StackPane(canvas, vbox);
         root.setStyle("-fx-background-color: black;");
 
+
         Scene scene = new Scene(root, 800, 600);
         stage.setTitle("Game Menu");
         stage.setScene(scene);
+
+        // Bind the scale of the VBox to the scene size
+        vbox.scaleXProperty().bind(scene.widthProperty().divide(800));
+        vbox.scaleYProperty().bind(scene.heightProperty().divide(600));
+
         stage.show();
     }
 
