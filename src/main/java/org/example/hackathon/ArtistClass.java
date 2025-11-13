@@ -27,54 +27,6 @@ import java.util.Random;
 
 public class ArtistClass {
 
-    public void start(Stage stage) {
-        // === Background with stars ===
-        Canvas canvas = new Canvas();
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-
-        canvas.widthProperty().bind(stage.widthProperty());
-        canvas.heightProperty().bind(stage.heightProperty());
-
-        drawStars(gc, 2020);
-
-
-        canvas.widthProperty().addListener(e-> drawStars(gc, 2000));
-        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 1000));
-
-
-        // === Title Label ===
-        Label title = new Label("Menu");
-        title.setTextFill(Color.WHITE);
-        title.setStyle("-fx-font-size: 63px; -fx-font-weight: bold;");
-
-        // === Buttons ===
-        Button startButton = new Button("Start Game");
-        startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 12px;");
-
-        Label blank = new Label("");
-
-
-
-
-        // === Layout ===
-        VBox vbox = new VBox(20, title, startButton,blank, volumeLabel, sliderBox);
-        vbox.setAlignment(Pos.CENTER);
-
-        StackPane root = new StackPane(canvas, vbox);
-        root.setStyle("-fx-background-color: black;");
-
-
-        Scene scene = new Scene(root, 800, 600);
-        stage.setTitle("Game Menu");
-        stage.setScene(scene);
-
-        // Bind the scale of the VBox to the scene size
-        vbox.scaleXProperty().bind(scene.widthProperty().divide(800));
-        vbox.scaleYProperty().bind(scene.heightProperty().divide(600));
-
-        stage.show();
-    }
-
     public static void drawStars(GraphicsContext gc, int count) {
         Random rand = new Random();
 
