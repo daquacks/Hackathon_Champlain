@@ -76,6 +76,28 @@ public class Launcher extends Application {
                 }
             }
 
+            Label label1 = createStyledLabel(INTRO_TEXT[3]);
+            label1.setOpacity(0); // Start invisible
+            root.getChildren().add(label1);
+            FadeTransition fadeIn1 = new FadeTransition(FADE_DURATION, label1);
+            fadeIn1.setFromValue(0.0);
+            fadeIn1.setToValue(1.0);
+            PauseTransition displayPause = new PauseTransition(DISPLAY_DURATION);
+            Label label2 = createStyledLabel(INTRO_TEXT[4]);
+            label2.setOpacity(0);
+            root.getChildren().add(label2);
+            FadeTransition fadeIn2 = new FadeTransition(FADE_DURATION, label2);
+            FadeTransition fadeOut1 = new FadeTransition(FADE_DURATION, label1);
+            FadeTransition fadeOut2 = new FadeTransition(FADE_DURATION, label2);
+            fadeOut1.setFromValue(1.0);
+            fadeOut1.setToValue(0.0);
+            fadeOut2.setFromValue(1.0);
+            fadeOut2.setToValue(0.0);
+            SequentialTransition lineSequence1 = new SequentialTransition(fadeIn1, displayPause, fadeOut1);
+            SequentialTransition lineSequence2 = new SequentialTransition(fadeIn2, displayPause, fadeOut2);
+            masterSequence.getChildren().addAll(lineSequence1, lineSequence2);
+
+
             // After all animations complete, you can transition to your main game scene
             masterSequence.setOnFinished(event -> {
                 System.out.println("Intro animation finished!");
@@ -135,4 +157,5 @@ public class Launcher extends Application {
     public static void main(String[] args) {
         launch(args);
     }
+
 }
