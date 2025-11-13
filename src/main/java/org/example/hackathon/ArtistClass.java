@@ -2,7 +2,6 @@ package org.example.hackathon;
 
 //package com.example.myfirstjavafxproject.Workshop;
 
-import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -17,25 +16,17 @@ import javafx.scene.layout.VBox;
 //import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import java.io.File;
-import java.io.IOException;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 
 import javax.sound.sampled.*;
-import javax.swing.*;
-import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 
-public class MenuClass extends Application {
+public class ArtistClass {
 
-    @Override
     public void start(Stage stage) {
         // === Background with stars ===
         Canvas canvas = new Canvas();
@@ -134,7 +125,7 @@ public class MenuClass extends Application {
         stage.show();
     }
 
-    private void drawStars(GraphicsContext gc, int count) {
+    public static void drawStars(GraphicsContext gc, int count) {
         Random rand = new Random();
 
         double width = gc.getCanvas().getWidth();
@@ -150,10 +141,6 @@ public class MenuClass extends Application {
             double radius = rand.nextDouble() * 2;
             gc.fillOval(x, y, radius, radius);
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
 

@@ -12,13 +12,11 @@ import javafx.scene.canvas.Canvas; // --- ADDED ---
 import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider; // --- ADDED ---
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle; // --- ADDED ---
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
@@ -26,13 +24,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.scene.layout.HBox;
-
-import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
@@ -204,19 +200,19 @@ public class Launcher extends Application {
         masterSequence.play();
     }
 
-    // --- NEW METHOD: Replaces MenuClass.start() ---
+    // --- NEW METHOD: Replaces ArtistClass.start() ---
     private void showTitleMenu(Stage primaryStage) {
 
-        // === 1. Build the Menu Scene (logic from MenuClass) ===
+        // === 1. Build the Menu Scene (logic from ArtistClass) ===
         Canvas canvas = new Canvas(1280, 720);
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawStars(gc, 20000); // Draw initial stars
+        ArtistClass.drawStars(gc, 2000); // Draw initial stars
 
         // Make stars redraw if window is resized
         canvas.widthProperty().bind(primaryStage.widthProperty());
         canvas.heightProperty().bind(primaryStage.heightProperty());
-        canvas.widthProperty().addListener((obs, o, n) -> drawStars(gc, 20000));
-        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 20000));
+        canvas.widthProperty().addListener((obs, o, n) -> ArtistClass.drawStars(gc, 2000));
+        canvas.heightProperty().addListener((obs, o, n) -> ArtistClass.drawStars(gc, 2000));
 
         Label title = new Label("RED SIGNAL"); // Changed title
         title.setTextFill(Color.WHITE);
@@ -229,38 +225,76 @@ public class Launcher extends Application {
         startButton.setOnMouseEntered(e -> startButton.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
         startButton.setOnMouseExited(e -> startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
 
-        Button configurations = new Button("Configurations");
-        configurations.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';");
-        // Add hover effect
-        configurations.setOnMouseEntered(e -> configurations.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
-        configurations.setOnMouseExited(e -> configurations.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
-
         // --- This is where the GameInterface is now launched ---
         startButton.setOnAction(e -> {
             System.out.println("Start button clicked, loading game...");
             launchGame(primaryStage); // Call helper to launch main game
         });
 
+        Label volumeLabel = new Label("Volume");
+        volumeLabel.setTextFill(Color.WHITE);
+        volumeLabel.setStyle("""
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    
+    
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 20px;
+    -fx-alignment: center;
+""");
 
 
-        // --- This is the how to access the configurations menu
-        configurations.setOnAction(e -> {
-            ; // Call helper to launch main game
-        });
+        Slider volumeSlider = new Slider(0, 1, 0.5);
+        volumeSlider.setPrefWidth(250); // shorter width
+        volumeSlider.setStyle("""
+    -fx-control-inner-background: black;
+    -fx-accent: white;
+    -fx-pref-height: 6px;
+    -fx-padding: 2px;
+""");
 
-        VBox vbox = new VBox(20, title, startButton, configurations);
+        try {
+            // Get the resource URL from the classpath
+            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
+            if (musicUrl == null) {
+                System.out.println("⚠️ Music file not found in resources!");
+            } else {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
+                clip.start();
+
+                // Connect volume slider
+                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                    float min = volumeControl.getMinimum();
+                    float max = volumeControl.getMaximum();
+                    float value = min + (max - min) * newVal.floatValue();
+                    volumeControl.setValue(value);
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        HBox sliderBox = new HBox(volumeSlider);
+        sliderBox.setAlignment(Pos.CENTER);
+        sliderBox.setPrefWidth(200);
+
+        VBox vbox = new VBox(20, title, startButton, volumeLabel, sliderBox);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane menuRoot = new StackPane(canvas, vbox);
         menuRoot.setStyle("-fx-background-color: black;");
-        Animations.flashbang(primaryStage, menuRoot);
+        Transitions.flashbang(primaryStage, menuRoot);
     }
 
     // --- NEW HELPER METHOD ---
     // This contains the logic from your old setOnKeyPressed handler
     private void launchGame(Stage primaryStage) {
         GameInterface mainUI = new GameInterface(primaryStage);
-        Animations.flashbang(primaryStage, mainUI.getRoot());
+        Transitions.flashbang(primaryStage, mainUI.getRoot());
         mainUI.addChatMessage("Incoming transmission detected...", true);
         mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
         mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
@@ -280,22 +314,6 @@ public class Launcher extends Application {
                 new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140))
         );
         chatTimeline.play();
-    }
-
-    // --- NEW METHOD: Copied from MenuClass ---
-    private void drawStars(GraphicsContext gc, int count) {
-        Random rand = new Random();
-        double width = gc.getCanvas().getWidth();
-        double height = gc.getCanvas().getHeight();
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, width, height);
-        gc.setFill(Color.WHITE);
-        for (int i = 0; i < count; i++) {
-            double x = rand.nextDouble() * width;
-            double y = rand.nextDouble() * height;
-            double radius = rand.nextDouble() * 2;
-            gc.fillOval(x, y, radius, radius);
-        }
     }
 
     // ... (createStyledLabel, createTypingAnimation, createFadeOut, createShake, main methods are unchanged) ...
