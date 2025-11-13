@@ -30,6 +30,9 @@ import javafx.scene.layout.HBox;
 
 import java.util.Map;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
@@ -146,7 +149,7 @@ public class Launcher extends Application {
                 System.out.println("Key pressed, showing main menu...");
 
                 // Call the new method to show the menu with a flash
-                showMainMenu(primaryStage);
+                showTitleMenu(primaryStage);
 
             });
             root.setFocusTraversable(true); // Make sure the root can receive key events
@@ -157,7 +160,7 @@ public class Launcher extends Application {
     }
 
     // --- NEW METHOD: Replaces MenuClass.start() ---
-    private void showMainMenu(Stage primaryStage) {
+    private void showTitleMenu(Stage primaryStage) {
 
         // === 1. Build the Menu Scene (logic from MenuClass) ===
         Canvas canvas = new Canvas(1280, 720);
@@ -181,12 +184,11 @@ public class Launcher extends Application {
         startButton.setOnMouseEntered(e -> startButton.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
         startButton.setOnMouseExited(e -> startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
 
-
-        Label volumeLabel = new Label("Volume");
-        volumeLabel.setTextFill(Color.WHITE);
-        volumeLabel.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 16px;");
-        Slider volumeSlider = new Slider(0, 1, 0.5);
-        volumeSlider.setPrefWidth(200);
+        Button configurations = new Button("Configurations");
+        configurations.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';");
+        // Add hover effect
+        configurations.setOnMouseEntered(e -> configurations.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
+        configurations.setOnMouseExited(e -> configurations.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
 
         // --- This is where the GameInterface is now launched ---
         startButton.setOnAction(e -> {
@@ -194,47 +196,26 @@ public class Launcher extends Application {
             launchGame(primaryStage); // Call helper to launch main game
         });
 
-        VBox vbox = new VBox(20, title, startButton, volumeLabel, volumeSlider);
+
+
+        // --- This is the how to access the configurations menu
+        configurations.setOnAction(e -> {
+            ; // Call helper to launch main game
+        });
+
+        VBox vbox = new VBox(20, title, startButton, configurations);
         vbox.setAlignment(Pos.CENTER);
 
         StackPane menuRoot = new StackPane(canvas, vbox);
         menuRoot.setStyle("-fx-background-color: black;");
-
-        // === 2. Build the Flash-Bang Transition ===
-
-        // Create the white flash pane, matching the scene size
-        Rectangle flashPane = new Rectangle(primaryStage.getWidth(), primaryStage.getHeight(), Color.WHITE);
-        flashPane.setOpacity(1.0); // Start fully white
-
-        // Put the menu *under* the white flash pane
-        StackPane transitionRoot = new StackPane(menuRoot, flashPane);
-
-        // Create the new scene with the transition layout
-        Scene menuScene = new Scene(transitionRoot, 1280, 720);
-
-        // Set the new scene immediately (it's just a white screen)
-        primaryStage.setScene(menuScene);
-
-        // === 3. Animate the Fade-In ===
-
-        // Create a fade-out for the *white pane*, revealing the menu underneath
-        FadeTransition fadeFromWhite = new FadeTransition(Duration.seconds(1.5), flashPane);
-        fadeFromWhite.setFromValue(1.0);
-        fadeFromWhite.setToValue(0.0);
-
-        // After fading, remove the flash pane so it doesn't block clicks
-        fadeFromWhite.setOnFinished(e -> {
-            flashPane.setVisible(false);
-            flashPane.setManaged(false); // Completely remove from layout
-        });
-
-        fadeFromWhite.play();
+        Animations.flashbang(primaryStage, menuRoot);
     }
 
     // --- NEW HELPER METHOD ---
     // This contains the logic from your old setOnKeyPressed handler
     private void launchGame(Stage primaryStage) {
         GameInterface mainUI = new GameInterface(primaryStage);
+        Animations.flashbang(primaryStage, mainUI.getRoot());
         mainUI.addChatMessage("Incoming transmission detected...", true);
         mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
         mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
