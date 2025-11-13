@@ -13,6 +13,8 @@ import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
 import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.control.Slider;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -24,7 +26,6 @@ import javafx.util.Duration;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 
-import java.util.Map;
 import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
@@ -60,13 +61,6 @@ public class Launcher extends Application {
         primaryStage.show();
 
         playIntroAnimation(root, primaryStage);
-
-        try {
-            dialogues = DialogueLoader.loadFromResource("/dialogues.json");
-        } catch (Exception ex) {
-            System.err.println("Failed to load dialogues: " + ex.getMessage());
-            dialogues = Map.of(); // safe empty map
-        }
     }
 
     // simple dialog presenter; replace PauseTransition with your typing animation if available
