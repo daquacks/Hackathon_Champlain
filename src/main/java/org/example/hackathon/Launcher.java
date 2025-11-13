@@ -31,6 +31,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 import java.util.Random; // --- ADDED ---
+import org.example.hackathon.DialogueLoader;
+
 
 public class Launcher extends Application {
 
@@ -65,6 +67,13 @@ public class Launcher extends Application {
         primaryStage.show();
 
         playIntroAnimation(root, primaryStage);
+
+        try {
+            dialogues = DialogueLoader.loadFromResource("/dialogues.json");
+        } catch (Exception ex) {
+            System.err.println("Failed to load dialogues: " + ex.getMessage());
+            dialogues = Map.of(); // safe empty map
+        }
     }
 
     private void showDialogue(StackPane root, String id, Stage primaryStage) {
