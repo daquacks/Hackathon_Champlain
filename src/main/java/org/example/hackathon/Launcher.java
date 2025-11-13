@@ -76,6 +76,10 @@ public class Launcher extends Application {
                 }
             }
 
+            Label label = createStyledLabel("H");
+            label.setOpacity(0); // Start invisible
+            root.getChildren().add(label)
+
             // After all animations complete, you can transition to your main game scene
             masterSequence.setOnFinished(event -> {
                 System.out.println("Intro animation finished!");
