@@ -1,5 +1,7 @@
 package org.example.hackathon;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -9,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -112,7 +115,26 @@ public class GameInterface {
         resourceBars.put(name, bar);
 
         resourcePanel.getChildren().addAll(label, bar);
+
+        startOxygenDrain(0.001); // decrease 1% per second
+
     }
+
+    public void startOxygenDrain(double drainPerSecond) {
+        ProgressBar oxygenBar = resourceBars.get("Oxygen");
+        if (oxygenBar == null) return;
+
+        Timeline oxygenTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> {
+                    double newValue = oxygenBar.getProgress() - drainPerSecond;
+                    oxygenBar.setProgress(Math.max(newValue, 0)); // prevent going below 0
+                })
+        );
+        oxygenTimeline.setCycleCount(Timeline.INDEFINITE);
+        oxygenTimeline.play();
+    }
+
+
 
     private void setupChatPanel() {
         chatContainer.setPadding(new Insets(20));
