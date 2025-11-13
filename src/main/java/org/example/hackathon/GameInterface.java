@@ -18,26 +18,21 @@ import java.util.Map;
 
 public class GameInterface {
 
-    // --- UI Components ---
+    // ... (UI Components and maps are unchanged) ...
     private BorderPane root;
-
-    // Left side containers
     private VBox leftPanel;
     private Pane mapPane;
     private VBox resourcePanel;
-
-    // Right side chat
     private ScrollPane chatScroll;
     private VBox chatBox;
-
-    // Resources
     private Map<String, ProgressBar> resourceBars;
     private Map<String, Label> resourceLabels;
+
 
     // --- Constructor ---
     public GameInterface(Stage stage) {
         root = new BorderPane();
-        root.setPrefSize(1280, 720);
+        root.setPrefSize(1280, 720); // Matched size to launcher
 
         setupLeftPanel();
         setupChatPanel();
@@ -47,11 +42,12 @@ public class GameInterface {
         root.setCenter(chatScroll);
 
         Scene scene = new Scene(root);
+        // Make sure game.css is in src/main/resources/styles/
         scene.getStylesheets().add(getClass().getResource("/styles/game.css").toExternalForm());
 
         stage.setScene(scene);
         stage.setTitle("Red Signal: A Message from Mars");
-        stage.show();
+        stage.show(); // Stage is already showing, this just sets the new scene
     }
 
     // -------------------------------------------------------------
@@ -68,11 +64,28 @@ public class GameInterface {
         mapPane.setPrefHeight(400);
         mapPane.setStyle("-fx-background-color: #111820; -fx-border-color: #555; -fx-border-width: 2;");
 
-        // Optional: background image of Mars
-        ImageView marsMap = new ImageView(new Image(getClass().getResourceAsStream("mars_base_map.png")));
-        marsMap.setFitWidth(380);
-        marsMap.setPreserveRatio(true);
-        mapPane.getChildren().add(marsMap);
+        // --- IMAGE PATH FIXED ---
+        // This path assumes 'mars_base_map.png' is in 'src/main/resources/'
+        // If it's in 'src/main/resources/images/', use "/images/mars_base_map.png"
+        Image marsImage = null;
+        try {
+            marsImage = new Image(getClass().getResourceAsStream("/org/example/hackathon/mars_base_map.png"));
+        } catch (Exception e) {
+            System.err.println("Could not load map image: /mars_base_map.png. " + e.getMessage());
+        }
+
+        if (marsImage != null) {
+            ImageView marsMap = new ImageView(marsImage);
+            marsMap.setFitWidth(380);
+            marsMap.setPreserveRatio(true);
+            mapPane.getChildren().add(marsMap);
+        } else {
+            // Placeholder if image fails to load
+            Label noImage = new Label("Map Data Not Found");
+            noImage.setTextFill(Color.RED);
+            mapPane.getChildren().add(noImage);
+        }
+        // --- END OF FIX ---
 
         // Bottom: resources
         resourcePanel = new VBox(10);
@@ -97,6 +110,7 @@ public class GameInterface {
         leftPanel.getChildren().addAll(mapPane, resourcePanel);
     }
 
+    // ... (Rest of GameInterface.java is unchanged) ...
     private void addResource(String name, Color color) {
         Label label = new Label(name);
         label.setTextFill(Color.WHITE);
@@ -109,9 +123,6 @@ public class GameInterface {
         resourceLabels.put(name, label);
     }
 
-    // -------------------------------------------------------------
-    // RIGHT PANEL SETUP (Chat)
-    // -------------------------------------------------------------
     private void setupChatPanel() {
         chatBox = new VBox(10);
         chatBox.setPadding(new Insets(10));
@@ -123,11 +134,6 @@ public class GameInterface {
         chatScroll.setStyle("-fx-background: #0d0d0d; -fx-border-color: #333;");
     }
 
-    // -------------------------------------------------------------
-    // PUBLIC METHODS (Updating UI)
-    // -------------------------------------------------------------
-
-    /** Adds a new chat message to the chat box. */
     public void addChatMessage(String message, boolean fromAstronaut) {
         Label msg = new Label(message);
         msg.setWrapText(true);
@@ -144,28 +150,21 @@ public class GameInterface {
         wrapper.setAlignment(fromAstronaut ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
         chatBox.getChildren().add(wrapper);
-
-        // Auto-scroll to latest
         chatScroll.setVvalue(1.0);
     }
 
-    /** Updates a specific resource (0.0–1.0 range). */
     public void updateResource(String name, double value) {
         if (resourceBars.containsKey(name)) {
             resourceBars.get(name).setProgress(value);
         }
     }
 
-    /** Adds a new landmark to the map. */
     public void addMapLandmark(String name, double x, double y) {
         Circle marker = new Circle(x, y, 6, Color.LIMEGREEN);
         Tooltip.install(marker, new Tooltip(name));
         mapPane.getChildren().add(marker);
     }
 
-    // -------------------------------------------------------------
-    // UTILS
-    // -------------------------------------------------------------
     private String toWebColor(Color c) {
         return String.format("#%02X%02X%02X",
                 (int) (c.getRed() * 255),
@@ -173,9 +172,6 @@ public class GameInterface {
                 (int) (c.getBlue() * 255));
     }
 
-    // -------------------------------------------------------------
-    // ACCESSORS
-    // -------------------------------------------------------------
     public BorderPane getRoot() {
         return root;
     }
