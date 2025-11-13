@@ -54,10 +54,11 @@ public class Launcher extends Application {
     private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(30);
 
     private Map<String, Dialogue> dialogues;
+    private StackPane root = new StackPane();
 
     @Override
     public void start(Stage primaryStage) {
-        StackPane root = new StackPane();
+
         root.setStyle("-fx-background-color: black;");
         root.setAlignment(Pos.CENTER);
 
@@ -317,24 +318,7 @@ public class Launcher extends Application {
         GameInterface mainUI = new GameInterface(primaryStage);
         Transitions.flashbang(primaryStage, mainUI.getRoot());
         mainUI.addChatMessage("Incoming transmission detected...", true);
-        mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
-        mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
 
-        Timeline resourceTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(2), ev -> mainUI.updateResource("Oxygen", 0.85)),
-                new KeyFrame(Duration.seconds(4), ev -> mainUI.updateResource("Morale", 0.75)),
-                new KeyFrame(Duration.seconds(6), ev -> mainUI.updateResource("Connection", 0.65)),
-                new KeyFrame(Duration.seconds(8), ev -> mainUI.updateResource("Food Supply", 0.5))
-        );
-        resourceTimeline.play();
-
-        Timeline chatTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
-                new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
-                new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
-                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140))
-        );
-        chatTimeline.play();
     }
 
     // ... (createStyledLabel, createTypingAnimation, createFadeOut, createShake, main methods are unchanged) ...
