@@ -100,16 +100,30 @@ public class Launcher extends Application {
         masterSequence.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
 
 
-        // --- Part 3: Special handling for the "Choice" (lines 4 and 5) ---
+        // --- Part 3: Special handling for the "Choice" (lines 4 and 5) ---\
         Label label4 = createStyledLabel(INTRO_TEXT[4]);
         Label label5 = createStyledLabel(INTRO_TEXT[5]);
         label4.setOpacity(0);
         label5.setOpacity(0);
 
-        VBox choiceBox = new VBox(10); // 10px spacing
+        // Use a VBox to stack them vertically
+        VBox choiceBox = new VBox(10); // 5px spacing
         choiceBox.setAlignment(Pos.CENTER);
         choiceBox.getChildren().addAll(label4, label5);
         root.getChildren().add(choiceBox);
+
+        // Create a parallel transition to fade them out *together*
+        ParallelTransition fadeOutBoth2 = new ParallelTransition(
+                createFadeOut(label4),
+                createFadeOut(label5)
+        );
+        SequentialTransition choiceSequence = new SequentialTransition(
+                createFadeIn(label4),
+                new PauseTransition(SHORT_PAUSE), // Shorter pause before line 3 appears
+                createFadeIn(label5),
+                new PauseTransition(DISPLAY_DURATION),
+                fadeOutBoth2
+        );
 
         // Fade *in* both choice lines together
         ParallelTransition fadeInChoice = new ParallelTransition(
@@ -122,14 +136,8 @@ public class Launcher extends Application {
                 createFadeOut(label4),
                 createFadeOut(label5)
         );
-
-        // Sequence for the choice
-        SequentialTransition choiceSequence = new SequentialTransition(
-                fadeInChoice,
-                new PauseTransition(DISPLAY_DURATION),
-                fadeOutChoice
-        );
         masterSequence.getChildren().add(choiceSequence);
+        masterSequence.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
 
 
         // --- Part 4: OnFinished handler (unchanged) ---
