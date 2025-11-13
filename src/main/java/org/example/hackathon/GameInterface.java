@@ -13,6 +13,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +192,25 @@ public class GameInterface{
 
         chatBox.getChildren().add(wrapper);
         chatScroll.setVvalue(1.0);
+
+        //Sound
+        try{
+            java.net.URL musicURL = getClass().getResource("/music/notification.wav");
+            if (musicURL == null) {
+                System.out.println("⚠️ Music file not found in resources!");
+            } else {
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicURL);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+
+                FloatControl gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+                gainControl.setValue(Launcher.audioValue);
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateResource(String name, double value) {

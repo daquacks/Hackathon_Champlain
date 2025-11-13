@@ -37,6 +37,9 @@ import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
 
+    //Sound value
+    public static float audioValue;
+
     // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
             "Five years ago, in 2030, humanity's dream of touching Mars became reality.",
@@ -64,7 +67,7 @@ public class Launcher extends Application {
 
         // --- Use 1280x720 for a more standard game resolution ---
         Scene scene = new Scene(root, 1280, 720);
-        primaryStage.setTitle("Mars 2035: The Distress Call");
+        primaryStage.setTitle("Red Signal: A Message from Mars");
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -295,6 +298,10 @@ public class Launcher extends Application {
                     float min = volumeControl.getMinimum();
                     float max = volumeControl.getMaximum();
                     float value = min + (max - min) * newVal.floatValue();
+
+                    //Save volume value for future audio
+                    audioValue = value;
+
                     volumeControl.setValue(value);
                 });
             }
