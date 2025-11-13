@@ -68,6 +68,13 @@ public class Launcher extends Application {
         primaryStage.show();
 
         playIntroAnimation(root, primaryStage);
+
+        try {
+            dialogues = DialogueLoader.loadFromResource("/dialogues.json");
+        } catch (Exception ex) {
+            System.err.println("Failed to load dialogues: " + ex.getMessage());
+            dialogues = Map.of(); // safe empty map
+        }
     }
 
     // simple dialog presenter; replace PauseTransition with your typing animation if available
