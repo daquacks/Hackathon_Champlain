@@ -136,7 +136,7 @@ public class Launcher extends Application {
                 // Add an event listener to transition to the next scene on key press
                 root.setOnKeyPressed(e -> {
                     System.out.println("Key pressed, starting game...");
-                    // primaryStage.setScene(new GameScene(...)); // Replace with your game scene
+                    timeline.play();
                 });
                 root.setFocusTraversable(true); // Make sure the root can receive key events
                 root.requestFocus(); // Give focus to the root
