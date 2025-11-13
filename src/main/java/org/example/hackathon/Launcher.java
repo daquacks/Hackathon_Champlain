@@ -1,12 +1,12 @@
 package org.example.hackathon;
 
+import javafx.animation.*;
 import javafx.application.Application;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -136,7 +136,7 @@ public class Launcher extends Application {
                 // Add an event listener to transition to the next scene on key press
                 root.setOnKeyPressed(e -> {
                     System.out.println("Key pressed, starting game...");
-                    // primaryStage.setScene(new GameScene(...)); // Replace with your game scene
+                    timeline.play();
                 });
                 root.setFocusTraversable(true); // Make sure the root can receive key events
                 root.requestFocus(); // Give focus to the root
