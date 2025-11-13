@@ -53,56 +53,6 @@ public class ArtistClass {
 
         Label blank = new Label("");
 
-        Label volumeLabel = new Label("Volume");
-        volumeLabel.setTextFill(Color.WHITE);
-        volumeLabel.setStyle("""
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    
-    
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-padding: 5px 20px;
-    -fx-alignment: center;
-""");
-
-
-        Slider volumeSlider = new Slider(0, 1, 0.5);
-        volumeSlider.setPrefWidth(250); // shorter width
-        volumeSlider.setStyle("""
-    -fx-control-inner-background: black;
-    -fx-accent: white;
-    -fx-pref-height: 6px;
-    -fx-padding: 2px;
-""");
-
-        try {
-            // Get the resource URL from the classpath
-            java.net.URL musicUrl = getClass().getResource("/music/spaceMusic.wav");
-            if (musicUrl == null) {
-                System.out.println("⚠️ Music file not found in resources!");
-            } else {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicUrl);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.loop(Clip.LOOP_CONTINUOUSLY); // loop music
-                clip.start();
-
-                // Connect volume slider
-                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                    float min = volumeControl.getMinimum();
-                    float max = volumeControl.getMaximum();
-                    float value = min + (max - min) * newVal.floatValue();
-                    volumeControl.setValue(value);
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        HBox sliderBox = new HBox(volumeSlider);
-        sliderBox.setAlignment(Pos.CENTER);
-        sliderBox.setPrefWidth(200);
 
 
 

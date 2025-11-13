@@ -1,5 +1,5 @@
 package org.example.hackathon;
-
+import java.util.Map;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -29,7 +29,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-import java.util.Random; // --- ADDED ---
 
 public class Launcher extends Application {
 
