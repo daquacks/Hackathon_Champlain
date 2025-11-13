@@ -256,20 +256,64 @@ public class Launcher extends Application {
     }
 
     private void launchGame(Stage primaryStage) {
+        // Load all dialogues (if not done yet)
+
+
+
         // Create main Game UI
         GameInterface mainUI = new GameInterface(primaryStage);
 
-        // Transition to the GameInterface root
+        loadDialogues();
+
+        System.out.println(this.dialogues);
+
+
+        // Switch to game UI
         Transitions.flashbang(primaryStage, mainUI.getRoot());
-        mainUI.addChatMessage("Bonjour test", true);
 
-
+        // Start reading the JSON from the starting node
+        playDialogueNodeInGame("start", mainUI);
     }
 
 
+
+
+    private void playDialogueNodeInGame(String id, GameInterface ui) {
+        Dialogue d = dialogues.get(id);
+        if (d == null) {
+            System.err.println("Dialogue ID not found: " + id);
+            return;
+        }
+
+        // Show each line one by one
+        for (String line : d.lines) {
+            boolean isControl = line.startsWith("Control:");
+            boolean isHale    = line.startsWith("Hale:");
+
+            // Control = left side, Hale = right side
+            boolean onLeftSide = isControl;
+
+            ui.addChatMessage(line, onLeftSide);
+        }
+
+        // If no choices -> end (death or good ending)
+        if (d.choices == null || d.choices.isEmpty()) {
+            ui.addChatMessage("[END OF TRANSMISSION]", true);
+            return;
+        }
+
+        // Show choices in the GameInterface
+        ui.showChoices(d.choices, choice -> {
+            // When user clicks a choice button
+            ui.clearChoices();
+            playDialogueNodeInGame(choice.nextId, ui);
+        });
+    }
+
     private void loadDialogues() {
         try {
-            java.net.URL dialogueUrl = getClass().getResource("dialogues.json");
+            java.net.URL dialogueUrl = getClass().getResource("/dialogues.json");
+            System.out.println(dialogueUrl);
             if (dialogueUrl != null) {
                 String jsonContent = new String(dialogueUrl.openStream().readAllBytes());
                 dialogues = DialogueParser.parseDialogues(jsonContent);

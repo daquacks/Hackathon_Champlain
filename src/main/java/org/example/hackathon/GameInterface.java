@@ -1,7 +1,5 @@
 package org.example.hackathon;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
 import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,148 +9,171 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.scene.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class GameInterface{
+public class GameInterface {
 
-    // ... (UI Components and maps are unchanged) ...
-    private BorderPane root;
+    // ROOT LAYOUT
+    private BorderPane root = new BorderPane();
+
+    // LEFT SIDE
     private VBox leftPanel;
     private Pane mapPane;
     private VBox resourcePanel;
-    private ScrollPane chatScroll;
-    private VBox chatBox;
-    private Map<String, ProgressBar> resourceBars;
-    private Map<String, Label> resourceLabels;
+    private Map<String, ProgressBar> resourceBars = new HashMap<>();
 
+    // CENTER CHAT
+    private VBox chatContainer = new VBox(10);
+    private ScrollPane chatScroll = new ScrollPane(chatContainer);
 
-    // --- Constructor ---
+    // CHOICE BUTTONS
+    private VBox choicesBox = new VBox(10);
+
+    // -------------------------------------------------------------
+    // CONSTRUCTOR
+    // -------------------------------------------------------------
     public GameInterface(Stage stage) {
-        root = new BorderPane();
-        root.setPrefSize(1280, 720); // Matched size to launcher
+
+        // Background
+        root.setStyle("-fx-background-color: black;");
 
         setupLeftPanel();
         setupChatPanel();
 
-        // Assemble layout
+        // LEFT = map + resources
         root.setLeft(leftPanel);
+
+        // CENTER = chat
         root.setCenter(chatScroll);
 
-        Scene scene = new Scene(root);
-        // Make sure game.css is in src/main/resources/styles/
-        scene.getStylesheets().add(getClass().getResource("/styles/game.css").toExternalForm());
-
-        stage.setScene(scene);
-        stage.setTitle("Red Signal: A Message from Mars");
-        stage.show(); // Stage is already showing, this just sets the new scene
+        // CHOICES overlay
+        StackPane centerWrapper = new StackPane(chatScroll, choicesBox);
+        root.setCenter(centerWrapper);
     }
 
     // -------------------------------------------------------------
-    // LEFT PANEL SETUP (Map + Resources)
+    // LEFT PANEL SETUP
     // -------------------------------------------------------------
     private void setupLeftPanel() {
-        leftPanel = new VBox();
-        leftPanel.setPrefWidth(400);
-        leftPanel.setSpacing(10);
-        leftPanel.setPadding(new Insets(10));
 
-        // Top: interactive map
+        leftPanel = new VBox(15);
+        leftPanel.setPadding(new Insets(15));
+        leftPanel.setPrefWidth(350);
+
+        // MAP
         mapPane = new Pane();
-        mapPane.setPrefHeight(400);
-        mapPane.setStyle("-fx-background-color: #111820; -fx-border-color: #555; -fx-border-width: 2;");
+        mapPane.setPrefHeight(350);
+        mapPane.setStyle("-fx-background-color: #111; -fx-border-color: #444; -fx-border-width: 2;");
 
-        // --- IMAGE PATH FIXED ---
-        // This path assumes 'mars_base_map.png' is in 'src/main/resources/'
-        // If it's in 'src/main/resources/images/', use "/images/mars_base_map.png"
-        Image marsImage = null;
         try {
-            marsImage = new Image(getClass().getResourceAsStream("/org/example/hackathon/mars_base_map.png"));
+            Image mapImg = new Image(getClass().getResourceAsStream("/org/example/hackathon/mars_base_map.png"));
+            ImageView mapView = new ImageView(mapImg);
+            mapView.setFitWidth(330);
+            mapView.setPreserveRatio(true);
+            mapPane.getChildren().add(mapView);
         } catch (Exception e) {
-            System.err.println("Could not load map image: /mars_base_map.png. " + e.getMessage());
+            Label fail = new Label("MAP NOT FOUND");
+            fail.setTextFill(Color.RED);
+            mapPane.getChildren().add(fail);
         }
 
-        if (marsImage != null) {
-            ImageView marsMap = new ImageView(marsImage);
-            marsMap.setFitWidth(380);
-            marsMap.setPreserveRatio(true);
-            mapPane.getChildren().add(marsMap);
-        } else {
-            // Placeholder if image fails to load
-            Label noImage = new Label("Map Data Not Found");
-            noImage.setTextFill(Color.RED);
-            mapPane.getChildren().add(noImage);
-        }
-        // --- END OF FIX ---
-
-        // Bottom: resources
+        // RESOURCES
         resourcePanel = new VBox(10);
         resourcePanel.setPadding(new Insets(10));
-        resourcePanel.setAlignment(Pos.TOP_LEFT);
         resourcePanel.setStyle("-fx-background-color: #1b1b1b; -fx-border-color: #444; -fx-border-width: 2;");
 
-        Label resTitle = new Label("RESOURCE STATUS");
-        resTitle.setFont(Font.font("Consolas", 18));
-        resTitle.setTextFill(Color.LIGHTGRAY);
-        resourcePanel.getChildren().add(resTitle);
-
-        // Initialize resource bars
-        resourceBars = new HashMap<>();
-        resourceLabels = new HashMap<>();
+        Label title = new Label("RESOURCES");
+        title.setFont(Font.font("Consolas", 18));
+        title.setTextFill(Color.WHITE);
+        resourcePanel.getChildren().add(title);
 
         addResource("Oxygen", Color.LIGHTBLUE);
+        addResource("Food", Color.ORANGE);
         addResource("Morale", Color.GOLD);
-        addResource("Connection", Color.LIMEGREEN);
-        addResource("Food Supply", Color.ORANGE);
+        addResource("Signal Strength", Color.LIMEGREEN);
 
         leftPanel.getChildren().addAll(mapPane, resourcePanel);
     }
 
-    // ... (Rest of GameInterface.java is unchanged) ...
     private void addResource(String name, Color color) {
         Label label = new Label(name);
         label.setTextFill(Color.WHITE);
+
         ProgressBar bar = new ProgressBar(1.0);
-        bar.setPrefWidth(360);
-        bar.setStyle("-fx-accent: " + toWebColor(color) + ";");
-        resourcePanel.getChildren().addAll(label, bar);
+        bar.setPrefWidth(300);
+        bar.setStyle("-fx-accent: " + toWebColor(color));
 
         resourceBars.put(name, bar);
-        resourceLabels.put(name, label);
+
+        resourcePanel.getChildren().addAll(label, bar);
     }
 
     private void setupChatPanel() {
-        chatBox = new VBox(10);
-        chatBox.setPadding(new Insets(10));
-        chatBox.setFillWidth(true);
-        chatBox.setStyle("-fx-background-color: #0d0d0d;");
-
-        chatScroll = new ScrollPane(chatBox);
+        chatContainer.setPadding(new Insets(20));
         chatScroll.setFitToWidth(true);
-        chatScroll.setStyle("-fx-background: #0d0d0d; -fx-border-color: #333;");
+        chatScroll.setStyle("-fx-background: #000; -fx-border-color: #222;");
     }
 
-    public void addChatMessage(String message, boolean fromAstronaut) {
-        Label msg = new Label(message);
-        msg.setWrapText(true);
-        msg.setMaxWidth(500);
-        msg.setPadding(new Insets(8, 12, 8, 12));
-        msg.setFont(Font.font("Consolas", 14));
-        msg.setTextFill(Color.WHITE);
-        msg.setStyle(fromAstronaut
-                ? "-fx-background-color: #293241; -fx-background-radius: 12;"
-                : "-fx-background-color: #1b4332; -fx-background-radius: 12;");
-        msg.setAlignment(fromAstronaut ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+    // -------------------------------------------------------------
+    // CHAT MESSAGE DISPLAY
+    // -------------------------------------------------------------
+    public void addChatMessage(String text, boolean leftSide) {
+        Label message = new Label(text);
+        message.setTextFill(Color.WHITE);
+        message.setWrapText(true);
+        message.setMaxWidth(550);
+        message.setPadding(new Insets(8, 12, 8, 12));
+        message.setFont(Font.font("Consolas", 16));
 
-        HBox wrapper = new HBox(msg);
-        wrapper.setAlignment(fromAstronaut ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+        // bubble color
+        message.setStyle(leftSide
+                ? "-fx-background-color: #213547; -fx-background-radius: 12;"
+                : "-fx-background-color: #1a472a; -fx-background-radius: 12;");
 
-        chatBox.getChildren().add(wrapper);
+        HBox wrapper = new HBox(message);
+        wrapper.setAlignment(leftSide ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+
+        chatContainer.getChildren().add(wrapper);
+
+        chatScroll.layout();
         chatScroll.setVvalue(1.0);
     }
 
+    // -------------------------------------------------------------
+    // CHOICE BUTTONS
+    // -------------------------------------------------------------
+    public void showChoices(java.util.List<Choice> choices, java.util.function.Consumer<Choice> callback) {
+
+        choicesBox.getChildren().clear();
+        choicesBox.setAlignment(Pos.CENTER);
+        choicesBox.setSpacing(15);
+
+        for (Choice c : choices) {
+
+            Button b = new Button(c.text);
+
+            b.setStyle("""
+                    -fx-font-size: 20px;
+                    -fx-background-color: rgba(255,255,255,0.09);
+                    -fx-text-fill: white;
+                    -fx-padding: 12px 25px;
+                    -fx-background-radius: 8;
+                    """);
+
+            b.setOnAction(e -> callback.accept(c));
+            choicesBox.getChildren().add(b);
+        }
+    }
+
+    public void clearChoices() {
+        choicesBox.getChildren().clear();
+    }
+
+    // -------------------------------------------------------------
+    // MAP + RESOURCES HELPERS
+    // -------------------------------------------------------------
     public void updateResource(String name, double value) {
         if (resourceBars.containsKey(name)) {
             resourceBars.get(name).setProgress(value);
@@ -172,6 +193,9 @@ public class GameInterface{
                 (int) (c.getBlue() * 255));
     }
 
+    // -------------------------------------------------------------
+    // ROOT ACCESS
+    // -------------------------------------------------------------
     public BorderPane getRoot() {
         return root;
     }
