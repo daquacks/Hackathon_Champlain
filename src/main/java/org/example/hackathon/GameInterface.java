@@ -3,7 +3,6 @@ package org.example.hackathon;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.*;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
@@ -12,11 +11,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.application.Platform;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,7 +81,7 @@ public class GameInterface {
         mapPane.setStyle("-fx-background-color: #111; -fx-border-color: #444; -fx-border-width: 2;");
 
         try {
-            Image mapImg = new Image(getClass().getResourceAsStream("/org/example/hackathon/mars_base_map.png"));
+            Image mapImg = new Image(getClass().getResourceAsStream("/mars_base_map.png"));
             ImageView mapView = new ImageView(mapImg);
             mapView.setFitWidth(330);
             mapView.setPreserveRatio(true);
@@ -174,7 +170,14 @@ public class GameInterface {
         chatContainer.getChildren().add(wrapper);
 
         chatScroll.layout();
-        chatScroll.setVvalue(1.0);
+        Platform.runLater(() -> {
+            chatScroll.setVvalue(1.0);
+        });
+
+
+
+
+
     }
 
     // -------------------------------------------------------------
