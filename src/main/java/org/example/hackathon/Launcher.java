@@ -44,7 +44,7 @@ public class Launcher extends Application {
             "The long silence is shattered by a single, desperate transmission.",
             "\"...static... reactor failure... life support critical... can anyone hear me...?\"",
             "The signal dies. Their fate is now in your hands.",
-            "Will you answer the call?"
+            "Will you answer the call? Or be a coward?"
     };
 
     private static final Duration FADE_DURATION = Duration.seconds(2.5);
