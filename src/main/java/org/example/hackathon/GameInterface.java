@@ -143,25 +143,6 @@ public class GameInterface {
 
         chatScroll.layout();
         chatScroll.setVvalue(1.0);
-
-        //Sound
-        try{
-            java.net.URL musicURL = getClass().getResource("/music/notification.wav");
-            if (musicURL == null) {
-                System.out.println("⚠️ Music file not found in resources!");
-            } else {
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicURL);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.start();
-
-                FloatControl gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
-                gainControl.setValue(Launcher.audioValue);
-            }
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
     // -------------------------------------------------------------
