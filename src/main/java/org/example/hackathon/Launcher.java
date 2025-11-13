@@ -296,7 +296,28 @@ public class Launcher extends Application {
             boolean onLeftSide = isControl;
 
             PauseTransition pause = new PauseTransition(Duration.seconds(2));
-            pause.setOnFinished(e -> ui.addChatMessage(line, onLeftSide));
+            pause.setOnFinished(e -> {
+                ui.addChatMessage(line, onLeftSide);
+
+                //Sound
+                try{
+                    java.net.URL musicURL = getClass().getResource("/music/Notification.wav");
+                    if (musicURL == null) {
+                        System.out.println("⚠️ Music file not found in resources!");
+                    } else {
+                        AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicURL);
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioInput);
+                        clip.start();
+
+                        FloatControl gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        gainControl.setValue(Launcher.audioValue);
+                    }
+                }
+                catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
 
             seq.getChildren().add(pause);
         }
