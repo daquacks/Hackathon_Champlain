@@ -53,6 +53,8 @@ public class Launcher extends Application {
     private static final Duration SHORT_PAUSE = Duration.seconds(1.5);
     private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(30);
 
+    private Map<String, Dialogue> dialogues;
+
     @Override
     public void start(Stage primaryStage) {
         StackPane root = new StackPane();
@@ -66,6 +68,49 @@ public class Launcher extends Application {
         primaryStage.show();
 
         playIntroAnimation(root, primaryStage);
+    }
+
+    // simple dialog presenter; replace PauseTransition with your typing animation if available
+    private void showDialogue(StackPane root, String id, Stage primaryStage) {
+        Dialogue d = dialogues == null ? null : dialogues.get(id);
+        if (d == null) return;
+
+        VBox container = new VBox(12);
+        container.setMaxWidth(900);
+        container.setStyle("-fx-padding: 20;");
+        root.getChildren().setAll(container);
+
+        SequentialTransition seq = new SequentialTransition();
+        for (String line : d.lines) {
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.6));
+            pause.setOnFinished(e -> {
+                Label lbl = new Label(line);
+                lbl.setWrapText(true);
+                lbl.setMaxWidth(800);
+                container.getChildren().add(lbl);
+            });
+            seq.getChildren().add(pause);
+        }
+
+        seq.setOnFinished(e -> {
+            if (d.choices == null || d.choices.isEmpty()) {
+                // no choices -> continue (example: start the game)
+                launchGame(primaryStage);
+                return;
+            }
+            HBox choicesBox = new HBox(10);
+            for (var c : d.choices) {
+                Button b = new Button(c.text);
+                b.setOnAction(evt -> {
+                    if (c.nextId == null || c.nextId.isEmpty()) launchGame(primaryStage);
+                    else showDialogue(root, c.nextId, primaryStage);
+                });
+                choicesBox.getChildren().add(b);
+            }
+            container.getChildren().add(choicesBox);
+        });
+
+        seq.play();
     }
 
     private void playIntroAnimation(StackPane root, Stage primaryStage) {
