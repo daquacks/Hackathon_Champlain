@@ -8,28 +8,20 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas; // --- ADDED ---
-import javafx.scene.canvas.GraphicsContext; // --- ADDED ---
-import javafx.scene.control.Button; // --- ADDED ---
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider; // --- ADDED ---
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle; // --- ADDED ---
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Random; // --- ADDED ---
-
 public class Launcher extends Application {
 
-    // ... (INTRO_TEXT array and constants remain unchanged) ...
     private static final String[] INTRO_TEXT = {
             "In 2030, humans managed to reach Mars.",
             "The current year is 2035, and you are working as a radio communicator.",
@@ -43,6 +35,7 @@ public class Launcher extends Application {
     private static final Duration DISPLAY_DURATION = Duration.seconds(2.0);
     private static final Duration PAUSE_BETWEEN_LINES = Duration.seconds(1.0);
     private static final Duration SHORT_PAUSE = Duration.seconds(1.5);
+    // New constant for typing speed (30ms per character)
     private static final Duration TYPING_SPEED_PER_CHAR = Duration.millis(30);
 
     @Override
@@ -51,8 +44,7 @@ public class Launcher extends Application {
         root.setStyle("-fx-background-color: black;");
         root.setAlignment(Pos.CENTER);
 
-        // --- Use 1280x720 for a more standard game resolution ---
-        Scene scene = new Scene(root, 1280, 720);
+        Scene scene = new Scene(root, 1000, 600);
         primaryStage.setTitle("Mars 2035: The Distress Call");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -61,14 +53,16 @@ public class Launcher extends Application {
     }
 
     private void playIntroAnimation(StackPane root, Stage primaryStage) {
-        // ... (All of Part 1, 2, 3 remains unchanged) ...
         SequentialTransition masterSequence = new SequentialTransition();
 
         // --- Part 1: Animate lines 0 and 1 normally ---
         for (int i = 0; i < 2; i++) {
+            // We pass the full text to createStyledLabel so it can be empty initially
             Label label = createStyledLabel(INTRO_TEXT[i]);
             root.getChildren().add(label);
+
             SequentialTransition lineSequence = new SequentialTransition(
+                    // Use new typing animation
                     createTypingAnimation(label, INTRO_TEXT[i]),
                     new PauseTransition(DISPLAY_DURATION),
                     createFadeOut(label)
@@ -80,16 +74,22 @@ public class Launcher extends Application {
         // --- Part 2: Special handling for lines 2 and 3 ---
         Label label2 = createStyledLabel(INTRO_TEXT[2]);
         Label label3 = createStyledLabel(INTRO_TEXT[3]);
-        VBox distressCallBox = new VBox(5);
+
+        VBox distressCallBox = new VBox(5); // 5px spacing
         distressCallBox.setAlignment(Pos.CENTER);
         distressCallBox.getChildren().addAll(label2, label3);
         root.getChildren().add(distressCallBox);
+
         ParallelTransition fadeOutBoth = new ParallelTransition(
-                createFadeOut(label2), createFadeOut(label3)
+                createFadeOut(label2),
+                createFadeOut(label3)
         );
+
         SequentialTransition distressSequence = new SequentialTransition(
+                // Use new typing animation
                 createTypingAnimation(label2, INTRO_TEXT[2]),
                 new PauseTransition(SHORT_PAUSE),
+                // Use new typing animation
                 createTypingAnimation(label3, INTRO_TEXT[3]),
                 new PauseTransition(DISPLAY_DURATION),
                 fadeOutBoth
@@ -101,48 +101,92 @@ public class Launcher extends Application {
         // --- Part 3: Special handling for the "Choice" (lines 4 and 5) ---
         Label label4 = createStyledLabel(INTRO_TEXT[4]);
         Label label5 = createStyledLabel(INTRO_TEXT[5]);
-        VBox choiceBox = new VBox(10);
+
+        VBox choiceBox = new VBox(10); // 10px spacing
         choiceBox.setAlignment(Pos.CENTER);
         choiceBox.getChildren().addAll(label4, label5);
         root.getChildren().add(choiceBox);
+
         FadeTransition fadeOut4 = createFadeOut(label4);
         FadeTransition fadeOut5 = createFadeOut(label5);
         Animation shakeAnimation = createShake(choiceBox);
+
         ParallelTransition fadeOutAndShake = new ParallelTransition(
-                fadeOut4, fadeOut5, shakeAnimation
+                fadeOut4,
+                fadeOut5,
+                shakeAnimation
         );
+
         SequentialTransition choiceSequence = new SequentialTransition(
+                // Use new typing animation
                 createTypingAnimation(label4, INTRO_TEXT[4]),
                 new PauseTransition(SHORT_PAUSE),
+                // Use new typing animation
                 createTypingAnimation(label5, INTRO_TEXT[5]),
                 new PauseTransition(DISPLAY_DURATION),
                 fadeOutAndShake
         );
+
         masterSequence.getChildren().add(choiceSequence);
         masterSequence.getChildren().add(new PauseTransition(PAUSE_BETWEEN_LINES));
 
-        // --- Part 4: OnFinished handler (MODIFIED) ---
+
+        // --- Part 4: OnFinished handler ---
         masterSequence.setOnFinished(event -> {
             System.out.println("Intro animation finished!");
 
-            String finalMessage = "Press Any Key to Continue"; // Changed text
+            String finalMessage = "Press Any Key to Start Game";
             Label finishedLabel = createStyledLabel(finalMessage);
             root.getChildren().clear(); // Clear previous labels
             root.getChildren().add(finishedLabel);
 
+            // Use typing animation for the final label too
             Animation finalTyping = createTypingAnimation(finishedLabel, finalMessage);
             finalTyping.play();
 
-            // --- REMOVED the background timeline, as it's not needed for the menu ---
+            //For background
+            int[] r = {0};
+            int[] g = {0};
+            int[] b = {0};
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(0.01), e -> {
+                Color color = Color.rgb(r[0], g[0], b[0], 1.0);
 
-            // --- MODIFIED KEY PRESS ---
-            // This now triggers the flash-bang and loads the menu
+                root.setBackground(new Background(
+                        new BackgroundFill(color, null, null)));
+
+                if (r[0] != 255) {
+                    r[0]++;
+                    g[0]++;
+                    b[0]++;
+                }
+            }));
+
+            timeline.setCycleCount(Timeline.INDEFINITE);
+
             root.setOnKeyPressed(e -> {
-                System.out.println("Key pressed, showing main menu...");
-
-                // Call the new method to show the menu with a flash
-                showMainMenu(primaryStage);
-
+                System.out.println("Key pressed, starting game...");
+                timeline.stop();
+                GameInterface mainUI = new GameInterface(primaryStage);
+                mainUI.addChatMessage("Incoming transmission detected...", true);
+                mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
+                mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
+                Timeline resourceTimeline = new Timeline(
+                        new KeyFrame(Duration.seconds(2), ev -> mainUI.updateResource("Oxygen", 0.85)),
+                        new KeyFrame(Duration.seconds(4), ev -> mainUI.updateResource("Morale", 0.75)),
+                        new KeyFrame(Duration.seconds(6), ev -> mainUI.updateResource("Connection", 0.65)),
+                        new KeyFrame(Duration.seconds(8), ev -> mainUI.updateResource("Food Supply", 0.5))
+                );
+                resourceTimeline.play();
+                Timeline chatTimeline = new Timeline(
+                        new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
+                        new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
+                        new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
+                        new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140)),
+                        new KeyFrame(Duration.seconds(15), ev -> mainUI.addChatMessage("Control Center: Go fuck yourself, Hale.", false)),
+                        new KeyFrame(Duration.seconds(18), ev -> mainUI.addChatMessage("Commander Hale: :(", true)),
+                        new KeyFrame(Duration.seconds(21), ev -> mainUI.addChatMessage("Alien: hahaha that was actually funny man", true))
+                );
+                chatTimeline.play();
             });
             root.setFocusTraversable(true); // Make sure the root can receive key events
             root.requestFocus(); // Give focus to the root
@@ -151,165 +195,63 @@ public class Launcher extends Application {
         masterSequence.play();
     }
 
-    // --- NEW METHOD: Replaces MenuClass.start() ---
-    private void showMainMenu(Stage primaryStage) {
-
-        // === 1. Build the Menu Scene (logic from MenuClass) ===
-        Canvas canvas = new Canvas(1280, 720);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawStars(gc, 20000); // Draw initial stars
-
-        // Make stars redraw if window is resized
-        canvas.widthProperty().bind(primaryStage.widthProperty());
-        canvas.heightProperty().bind(primaryStage.heightProperty());
-        canvas.widthProperty().addListener((obs, o, n) -> drawStars(gc, 20000));
-        canvas.heightProperty().addListener((obs, o, n) -> drawStars(gc, 20000));
-
-        Label title = new Label("RED SIGNAL"); // Changed title
-        title.setTextFill(Color.WHITE);
-        // Use a more thematic font style
-        title.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 100px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.8), 10, 0.5, 0, 0);");
-
-        Button startButton = new Button("Start Game");
-        startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';");
-        // Add hover effect
-        startButton.setOnMouseEntered(e -> startButton.setStyle("-fx-background-color: rgba(255, 255, 255, 0.2); -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
-        startButton.setOnMouseExited(e -> startButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 3; -fx-font-size: 32px; -fx-font-family: 'Arial';"));
-
-
-        Label volumeLabel = new Label("Volume");
-        volumeLabel.setTextFill(Color.WHITE);
-        volumeLabel.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 16px;");
-        Slider volumeSlider = new Slider(0, 1, 0.5);
-        volumeSlider.setPrefWidth(200);
-
-        // --- This is where the GameInterface is now launched ---
-        startButton.setOnAction(e -> {
-            System.out.println("Start button clicked, loading game...");
-            launchGame(primaryStage); // Call helper to launch main game
-        });
-
-        VBox vbox = new VBox(20, title, startButton, volumeLabel, volumeSlider);
-        vbox.setAlignment(Pos.CENTER);
-
-        StackPane menuRoot = new StackPane(canvas, vbox);
-        menuRoot.setStyle("-fx-background-color: black;");
-
-        // === 2. Build the Flash-Bang Transition ===
-
-        // Create the white flash pane, matching the scene size
-        Rectangle flashPane = new Rectangle(primaryStage.getWidth(), primaryStage.getHeight(), Color.WHITE);
-        flashPane.setOpacity(1.0); // Start fully white
-
-        // Put the menu *under* the white flash pane
-        StackPane transitionRoot = new StackPane(menuRoot, flashPane);
-
-        // Create the new scene with the transition layout
-        Scene menuScene = new Scene(transitionRoot, 1280, 720);
-
-        // Set the new scene immediately (it's just a white screen)
-        primaryStage.setScene(menuScene);
-
-        // === 3. Animate the Fade-In ===
-
-        // Create a fade-out for the *white pane*, revealing the menu underneath
-        FadeTransition fadeFromWhite = new FadeTransition(Duration.seconds(1.5), flashPane);
-        fadeFromWhite.setFromValue(1.0);
-        fadeFromWhite.setToValue(0.0);
-
-        // After fading, remove the flash pane so it doesn't block clicks
-        fadeFromWhite.setOnFinished(e -> {
-            flashPane.setVisible(false);
-            flashPane.setManaged(false); // Completely remove from layout
-        });
-
-        fadeFromWhite.play();
-    }
-
-    // --- NEW HELPER METHOD ---
-    // This contains the logic from your old setOnKeyPressed handler
-    private void launchGame(Stage primaryStage) {
-        GameInterface mainUI = new GameInterface(primaryStage);
-        mainUI.addChatMessage("Incoming transmission detected...", true);
-        mainUI.addChatMessage("Commander Hale: This is Hale... is anyone reading me?", true);
-        mainUI.addChatMessage("Control Center: We read you, Commander. What's your situation?", false);
-
-        Timeline resourceTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(2), ev -> mainUI.updateResource("Oxygen", 0.85)),
-                new KeyFrame(Duration.seconds(4), ev -> mainUI.updateResource("Morale", 0.75)),
-                new KeyFrame(Duration.seconds(6), ev -> mainUI.updateResource("Connection", 0.65)),
-                new KeyFrame(Duration.seconds(8), ev -> mainUI.updateResource("Food Supply", 0.5))
-        );
-        resourceTimeline.play();
-
-        Timeline chatTimeline = new Timeline(
-                new KeyFrame(Duration.seconds(3), ev -> mainUI.addChatMessage("Commander Hale: Oxygen levels stable, but I’ve lost visual contact with base.", true)),
-                new KeyFrame(Duration.seconds(6), ev -> mainUI.addChatMessage("Control Center: Stay calm. Can you locate any landmarks?", false)),
-                new KeyFrame(Duration.seconds(9), ev -> mainUI.addChatMessage("Commander Hale: There’s a ridge to the north... adding it to the map.", true)),
-                new KeyFrame(Duration.seconds(12), ev -> mainUI.addMapLandmark("Delta Crater", 250, 140)),
-                new KeyFrame(Duration.seconds(15), ev -> mainUI.addChatMessage("Control Center: Go fuck yourself, Hale.", false)),
-                new KeyFrame(Duration.seconds(18), ev -> mainUI.addChatMessage("Commander Hale: :(", true)),
-                new KeyFrame(Duration.seconds(21), ev -> mainUI.addChatMessage("Alien: hahaha that was actually funny man", true))
-        );
-        chatTimeline.play();
-    }
-
-    // --- NEW METHOD: Copied from MenuClass ---
-    private void drawStars(GraphicsContext gc, int count) {
-        Random rand = new Random();
-        double width = gc.getCanvas().getWidth();
-        double height = gc.getCanvas().getHeight();
-        gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, width, height);
-        gc.setFill(Color.WHITE);
-        for (int i = 0; i < count; i++) {
-            double x = rand.nextDouble() * width;
-            double y = rand.nextDouble() * height;
-            double radius = rand.nextDouble() * 2;
-            gc.fillOval(x, y, radius, radius);
-        }
-    }
-
-    // ... (createStyledLabel, createTypingAnimation, createFadeOut, createShake, main methods are unchanged) ...
-
     // Helper method for consistent styling
     private Label createStyledLabel(String text) {
+        // Label starts empty, will be filled by animation
         Label label = new Label("");
         Font retroFont = null;
+
         try {
-            // NOTE: Make sure your font file is named this or fix the path!
+            // Assumes font is renamed to "digital-7-mono.ttf" in resources/fonts/
             retroFont = Font.loadFont(getClass().getResourceAsStream("/fonts/digital-7 (mono).ttf"), 36);
         } catch (Exception e) {
             System.err.println("Could not load font! Using default. Error: " + e.getMessage());
         }
+
         if (retroFont != null) {
             label.setFont(retroFont);
         } else {
             label.setFont(Font.font("Arial", FontWeight.BOLD, 36)); // Fallback
         }
+
         label.setTextFill(Color.color(0.0588235,0.2666666,0.0588235));
         label.setWrapText(true);
         label.setMaxWidth(800);
+        // This is the key for centering wrapped text
         label.setTextAlignment(TextAlignment.CENTER);
         return label;
     }
 
+    /**
+     * Creates a typing animation for a Label.
+     * @param label The label to animate.
+     * @param fullText The full text to type out.
+     * @return An Animation that types the text.
+     */
     private Animation createTypingAnimation(Label label, String fullText) {
+        // Use an ObjectProperty to animate the visible character count
         final ObjectProperty<Integer> letterCount = new SimpleObjectProperty<>(0);
+
+        // Bind the label's text to a substring of the full text
         label.textProperty().bind(Bindings.createStringBinding(() -> {
             if (letterCount.get() <= 0) {
                 return "";
             }
             return fullText.substring(0, Math.min(letterCount.get(), fullText.length()));
         }, letterCount));
+
+        // Create the timeline to animate the letterCount
         Timeline timeline = new Timeline();
         Duration duration = TYPING_SPEED_PER_CHAR.multiply(fullText.length());
+
         timeline.getKeyFrames().add(
                 new KeyFrame(duration, new KeyValue(letterCount, fullText.length(), Interpolator.LINEAR))
         );
+
         return timeline;
     }
 
+    // Helper method to create a standard fade-out (still needed)
     private FadeTransition createFadeOut(Label label) {
         FadeTransition fadeOut = new FadeTransition(FADE_DURATION, label);
         fadeOut.setFromValue(1.0);
@@ -317,17 +259,21 @@ public class Launcher extends Application {
         return fadeOut;
     }
 
+    // Shake animation method (unchanged)
     private Animation createShake(Node node) {
         Timeline timeline = new Timeline();
         double cycleDuration = 75; // 75 milliseconds
+
         timeline.getKeyFrames().addAll(
                 new KeyFrame(Duration.ZERO, new KeyValue(node.translateXProperty(), 0)),
                 new KeyFrame(Duration.millis(cycleDuration * 0.25), new KeyValue(node.translateXProperty(), -8)),
                 new KeyFrame(Duration.millis(cycleDuration * 0.75), new KeyValue(node.translateXProperty(), 8)),
                 new KeyFrame(Duration.millis(cycleDuration), new KeyValue(node.translateXProperty(), 0))
         );
+
         int shakeCycles = (int) (FADE_DURATION.toMillis() / cycleDuration);
         timeline.setCycleCount(shakeCycles);
+
         return timeline;
     }
 
