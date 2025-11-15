@@ -267,6 +267,27 @@ public class Launcher extends Application {
         // Create main Game UI
         GameInterface mainUI = new GameInterface(primaryStage);
 
+        mainUI.setOnDeath(() -> {
+            System.out.println("YOU DIED!");
+
+            // stop draining loops BEFORE showing death screen
+            mainUI.stopAllGameLoops();
+
+            StackPane deathScreen = new StackPane();
+            deathScreen.setStyle("-fx-background-color: black;");
+
+            Label deathLabel = new Label("SIGNAL LOST\nMISSION FAILED");
+            deathLabel.setTextFill(Color.RED);
+            deathLabel.setStyle("-fx-font-size: 70px; -fx-font-weight: bold;");
+            deathScreen.getChildren().add(deathLabel);
+
+            Platform.runLater(() -> {
+                // IMPORTANT: Use setRoot instead of another flashbang
+                primaryStage.getScene().setRoot(deathScreen);
+            });
+        });
+
+
         loadDialogues();
 
         System.out.println(this.dialogues);

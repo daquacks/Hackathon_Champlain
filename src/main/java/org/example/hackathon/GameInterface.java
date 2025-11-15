@@ -18,6 +18,11 @@ import java.util.Map;
 
 public class GameInterface {
 
+    private Timeline oxygenTimeline;
+    private Timeline foodTimeline;
+
+    private Runnable onDeath;
+
     // ROOT LAYOUT
     private BorderPane root = new BorderPane();
 
@@ -124,17 +129,18 @@ public class GameInterface {
 
         startOxygenDrain(0.001); // decrease 1% per second
 
-        startFoodDrain(0.73);
+        startFoodDrain(0.0003);
     }
 
     public void startOxygenDrain(double drainPerSecond) {
         ProgressBar oxygenBar = resourceBars.get("Oxygen");
         if (oxygenBar == null) return;
 
-        Timeline oxygenTimeline = new Timeline(
+        oxygenTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> {
                     double newValue = oxygenBar.getProgress() - drainPerSecond;
                     oxygenBar.setProgress(Math.max(newValue, 0)); // prevent going below 0
+                    checkForDeath();
                 })
         );
         oxygenTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -145,8 +151,15 @@ public class GameInterface {
         ProgressBar foodBar = resourceBars.get("Food");
         if (foodBar == null) return;
 
-        foodBar.setProgress(0.76);
-
+        foodTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> {
+                    double newValue = foodBar.getProgress() - drainPerSecond;
+                    foodBar.setProgress(Math.max(newValue, 0));
+                    checkForDeath();
+                })
+        );
+        foodTimeline.setCycleCount(Timeline.INDEFINITE);
+        foodTimeline.play();
     }
 
     public void reduceSignalBy(double amount) {
@@ -243,12 +256,25 @@ public class GameInterface {
 
             b.setOnAction(e -> {
                 reduceSignalBy(0.10);  // reduce by 10%
+                checkForDeath();
                 callback.accept(c);
             });
             choicesBox.getChildren().add(b);
         }
     }
-
+    public void setOnDeath(Runnable onDeath) {
+        this.onDeath = onDeath;
+    }
+    private void checkForDeath() {
+        for (ProgressBar bar : resourceBars.values()) {
+            if (bar.getProgress() <= 0.0001) {  // threshold to avoid floating point errors
+                if (onDeath != null) {
+                    onDeath.run();  // trigger death event
+                }
+                return;
+            }
+        }
+    }
     public void clearChoices() {
         choicesBox.getChildren().clear();
     }
@@ -259,6 +285,7 @@ public class GameInterface {
     public void updateResource(String name, double value) {
         if (resourceBars.containsKey(name)) {
             resourceBars.get(name).setProgress(value);
+            checkForDeath();
         }
     }
 
@@ -266,6 +293,11 @@ public class GameInterface {
         Circle marker = new Circle(x, y, 6, Color.LIMEGREEN);
         Tooltip.install(marker, new Tooltip(name));
         mapPane.getChildren().add(marker);
+    }
+
+    public void stopAllGameLoops() {
+        if (oxygenTimeline != null) oxygenTimeline.stop();
+        if (foodTimeline != null) foodTimeline.stop();
     }
 
     private String toWebColor(Color c) {
