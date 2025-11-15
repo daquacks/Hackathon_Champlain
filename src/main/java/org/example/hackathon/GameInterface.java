@@ -149,6 +149,14 @@ public class GameInterface {
 
     }
 
+    public void reduceSignalBy(double amount) {
+        ProgressBar signalBar = resourceBars.get("Signal Strength");
+        if (signalBar == null) return;
+
+        double newValue = signalBar.getProgress() - amount;
+        signalBar.setProgress(Math.max(newValue, 0)); // clamp at 0
+    }
+
 
 
     private void setupChatPanel() {
@@ -233,7 +241,10 @@ public class GameInterface {
             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 4, 0.5, 0, 2);
             """));
 
-            b.setOnAction(e -> callback.accept(c));
+            b.setOnAction(e -> {
+                reduceSignalBy(0.10);  // reduce by 10%
+                callback.accept(c);
+            });
             choicesBox.getChildren().add(b);
         }
     }
